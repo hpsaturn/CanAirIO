@@ -1,8 +1,9 @@
+#include <hpma115S0.h>
 #include <Button2.h>
 #include <SPI.h>
 #include <TFT_eSPI.h>
 #include <Wire.h>
-
+// #include <vector>
 #include "WiFi.h"
 #include "esp_adc_cal.h"
 
@@ -26,6 +27,19 @@ Button2 btn2(BUTTON_2);
 char buff[512];
 int vref = 1100;
 long count = 0;
+bool btn1click;
+
+#define HPMA_RX 12  // config for D1MIN1 board
+#define HPMA_TX 13
+
+HardwareSerial hpmaSerial(1);
+HPMA115S0 hpma115S0(hpmaSerial);
+
+// vector<unsigned int> v25;      // for average
+// vector<unsigned int> v10;      // for average
+// unsigned int apm25 = 0;        // last PM2.5 average
+// unsigned int apm10 = 0;        // last PM10 average
+#define SENSOR_RETRY  1000     // Sensor read retry
 
 //! Long time delay, it is recommended to use shallow sleep, which can effectively reduce the current consumption
 void espDelay(int ms) {
@@ -35,7 +49,6 @@ void espDelay(int ms) {
 }
 
 void showVoltage() {
-    count = 0;
     static uint64_t timeStamp = 0;
     if (millis() - timeStamp > 1000) {
         timeStamp = millis();
@@ -110,15 +123,18 @@ void suspend() {
 void button_init() {
     btn1.setLongClickHandler([](Button2 &b) {
         Serial.println("Btn1LngPress: Suspend..");
+        btn1click = false;
         suspend();
     });
     btn1.setPressedHandler([](Button2 &b) {
         Serial.println("Btn1 Detect Voltage..");
+        btn1click = true;
         showVoltage();
     });
 
     btn2.setPressedHandler([](Button2 &b) {
         Serial.println("Btn2 Wifi scan");
+        btn1click = false;
         wifi_scan();
     });
 }
@@ -158,7 +174,7 @@ void setup() {
     // tft.pushImage(0, 0,  240, 135, ttgo);
     // espDelay(5000);
 
-    // tft.setRotation(180);
+    // tft.setRotation(0);
     // tft.fillScreen(TFT_RED);
     // espDelay(100);
     // tft.fillScreen(TFT_BLUE);
@@ -191,7 +207,65 @@ void setup() {
     tft.setTextDatum(TL_DATUM);
 }
 
+void sensorInit(){
+  Serial.println("-->[PMSensor] Starting Panasonic sensor..");
+  delay(100);
+  hpmaSerial.begin(9600,SERIAL_8N1,HPMA_RX,HPMA_TX);
+  delay(100);
+}
+
+void wrongDataState(){
+  Serial.print("-->[E][HPMA] !wrong data!");
+  hpmaSerial.end();
+  sensorInit();
+  delay(500);
+}
+
+char getLoaderChar(){ 
+  char loader[] = {'/','|','\\','-'};
+  return loader[random(0,4)];
+}
+
+void showValues(uint16_t pm25, uint16_t pm10) {
+    char output[22];
+    sprintf(output, "PM25:%03d PM10:%03d", pm25, pm10);
+    tft.fillScreen(TFT_BLACK);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextSize(2);
+    tft.drawString(String(output), tft.width() / 2, tft.height() / 2 - 24);
+}
+
+void sensorLoop() {
+    int try_sensor_read = 0;
+    String txtMsg = "";
+    while (txtMsg.length() < 32 && try_sensor_read++ < SENSOR_RETRY) {
+        while (hpmaSerial.available() > 0) {
+            char inChar = hpmaSerial.read();
+            txtMsg += inChar;
+            Serial.print("-->[HPMA] read " + String(getLoaderChar()) + "\r");
+        }
+        Serial.print("-->[HPMA] read " + String(getLoaderChar()) + "\r");
+    }
+    if (try_sensor_read > SENSOR_RETRY) {
+        Serial.println("-->[HPMA] read > fail!");
+        Serial.println("-->[E][HPMA] disconnected ?");
+        delay(500);  // waiting for sensor..
+    }
+
+    if (txtMsg[0] == 02) {
+        Serial.print("-->[HPMA] read > done!");
+        unsigned int pm25 = txtMsg[6] * 256 + byte(txtMsg[5]);
+        unsigned int pm10 = txtMsg[10] * 256 + byte(txtMsg[9]);
+        if (pm25 < 1000 && pm10 < 1000) {
+            showValues(pm25, pm10);
+        } else
+            wrongDataState();
+    } else
+        wrongDataState();
+}
+
 void loop() {
-    if (count++ > 4000000) suspend();
+    if (count++ > 5000000) suspend();
+    if (btn1click) showVoltage();
     button_loop();
 }
