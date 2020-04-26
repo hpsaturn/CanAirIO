@@ -21,7 +21,7 @@
 #define BUTTON_2 0
 #define PMS_EN 27   // Panasonic enable pin (2N2222A switch to booster module)
 
-// #define ENABLE_TFT
+#define ENABLE_TFT
 
 #ifdef ENABLE_TFT
 TFT_eSPI tft = TFT_eSPI(135, 240);  // Invoke custom library
