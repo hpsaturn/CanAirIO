@@ -1,12 +1,14 @@
-#include <hpma115S0.h>
 #include <Button2.h>
 #include <SPI.h>
 #include <TFT_eSPI.h>
 #include <Wire.h>
+#include <hpma115S0.h>
+
+#include <battery.hpp>
 #include <hal.hpp>
-// #include <vector>
+
 #include "WiFi.h"
-#include "esp_adc_cal.h"
+// #include <vector>
 
 #ifdef ENABLE_TFT
 TFT_eSPI tft = TFT_eSPI(135, 240);  // Invoke custom library
@@ -15,7 +17,6 @@ Button2 btn1(BUTTON_1);
 Button2 btn2(BUTTON_2);
 
 char buff[512];
-int vref = 1100;
 long count = 0;
 bool btn1click;
 bool sensorToggle;
@@ -27,7 +28,7 @@ HPMA115S0 hpma115S0(hpmaSerial);
 // vector<unsigned int> v10;      // for average
 // unsigned int apm25 = 0;        // last PM2.5 average
 // unsigned int apm10 = 0;        // last PM10 average
-#define SENSOR_RETRY  1000     // Sensor read retry
+#define SENSOR_RETRY 1000  // Sensor read retry
 
 //! Long time delay, it is recommended to use shallow sleep, which can effectively reduce the current consumption
 void espDelay(int ms) {
@@ -36,18 +37,13 @@ void espDelay(int ms) {
     esp_light_sleep_start();
 }
 
-float getVoltage() {
-    uint16_t v = analogRead(ADC_PIN);
-    return ((float)v / 4095.0) * 2.0 * 3.3 * (vref / 1000.0);
-}
-
 void showVoltage() {
     static uint64_t timeStamp = 0;
     if (millis() - timeStamp > 1000) {
         timeStamp = millis();
         float battery_voltage = getVoltage();
         String voltage = "" + String(battery_voltage) + "v";
-        Serial.printf("-->[UI] voltage: %s\n",voltage.c_str());
+        Serial.printf("-->[UI] voltage: %s\n", voltage.c_str());
 #ifdef ENABLE_TFT
         tft.fillScreen(TFT_BLACK);
         tft.setTextDatum(MC_DATUM);
@@ -66,7 +62,7 @@ void wifi_scan() {
     tft.fillScreen(TFT_BLACK);
     tft.setTextDatum(MC_DATUM);
     tft.setTextSize(2);
-    tft.drawString("Scan Network", tft.width() / 2, tft.height() / 2);    
+    tft.drawString("Scan Network", tft.width() / 2, tft.height() / 2);
 #endif
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
@@ -96,11 +92,11 @@ void wifi_scan() {
     espDelay(2000);
 }
 
-void sensorInit(){
-  Serial.println("-->[PMSensor] Starting Panasonic sensor..");
-  delay(100);
-  hpmaSerial.begin(9600,SERIAL_8N1,PMS_RX,PMS_TX);
-  delay(100);
+void sensorInit() {
+    Serial.println("-->[PMSensor] Starting Panasonic sensor..");
+    delay(100);
+    hpmaSerial.begin(9600, SERIAL_8N1, PMS_RX, PMS_TX);
+    delay(100);
 }
 
 void showSensorStatus() {
@@ -122,16 +118,16 @@ void enableSensor(bool enable) {
         digitalWrite(PMS_EN, LOW);
 }
 
-void wrongDataState(){
-  Serial.println("-->[E][PMSensor] !wrong data!");
-  hpmaSerial.end();
-  sensorInit();
-  delay(500);
+void wrongDataState() {
+    Serial.println("-->[E][PMSensor] !wrong data!");
+    hpmaSerial.end();
+    sensorInit();
+    delay(500);
 }
 
-char getLoaderChar(){ 
-  char loader[] = {'/','|','\\','-'};
-  return loader[random(0,4)];
+char getLoaderChar() {
+    char loader[] = {'/', '|', '\\', '-'};
+    return loader[random(0, 4)];
 }
 
 void showValues(uint16_t pm25, uint16_t pm10) {
@@ -142,11 +138,15 @@ void showValues(uint16_t pm25, uint16_t pm10) {
     tft.setTextDatum(MC_DATUM);
     tft.setTextSize(8);
     tft.fillScreen(TFT_BLACK);
-    tft.drawString(String(output), tft.width() / 2, tft.height() / 2 );
-    String voltage = "" + String(getVoltage()) + "v";
-    tft.setTextDatum(BR_DATUM);
+    tft.drawString(String(output), tft.width() / 2, tft.height() / 2);
+    float volts = getVoltage();
+    String voltage = "" + String(volts) + "v";
+    String battery = "" + String(calcPercentage(volts)) + "%";
     tft.setTextSize(3);
-    tft.drawString(String(voltage), tft.width(), 135);
+    tft.setTextDatum(BR_DATUM);
+    tft.drawString(voltage, tft.width(), 135);
+    tft.setTextDatum(BL_DATUM);
+    tft.drawString(battery, 0, 135);
 #endif
 }
 
@@ -220,7 +220,7 @@ void displayInit() {
     tft.setTextSize(2);
     if (TFT_BL > 0) {                            // TFT_BL has been set in the TFT_eSPI library in the User Setup file TTGO_T_Display.h
         pinMode(TFT_BL, OUTPUT);                 // Set backlight pin to output mode
-        digitalWrite(TFT_BL,TFT_BACKLIGHT_ON);  // Turn backlight on. TFT_BACKLIGHT_ON has been set in the TFT_eSPI library in the User Setup file TTGO_T_Display.h
+        digitalWrite(TFT_BL, TFT_BACKLIGHT_ON);  // Turn backlight on. TFT_BACKLIGHT_ON has been set in the TFT_eSPI library in the User Setup file TTGO_T_Display.h
     }
 #endif
 }
@@ -237,20 +237,20 @@ void suspend() {
     esp_deep_sleep_start();
 }
 
-void button_init() {
+void buttonInit() {
     btn1.setLongClickHandler([](Button2 &b) {
         Serial.println("-->[Btn1LngPress:] Suspend..");
         btn1click = false;
         suspend();
     });
-    
+
     btn1.setClickHandler([](Button2 &b) {
         Serial.println("-->[Btn1 Detect:] Voltage..");
         btn1click = !btn1click;
         showVoltage();
     });
 
-    btn2.setLongClickHandler([](Button2 &b){
+    btn2.setLongClickHandler([](Button2 &b) {
         Serial.println("-->[Btn2 Detect:] Wifi Scan..");
         btn1click = false;
         wifi_scan();
@@ -274,27 +274,10 @@ void setup() {
     Serial.println("\n-->[SETUP] init:");
     displayInit();
     sensorInit();
-    /*
-    ADC_EN is the ADC detection enable port
-    If the USB port is used for power supply, it is turned on by default.
-    If it is powered by battery, it needs to be set to high level
-    */
-    pinMode(ADC_EN, OUTPUT);
-    digitalWrite(ADC_EN, HIGH);
-    button_init();
-
-    esp_adc_cal_characteristics_t adc_chars;
-    esp_adc_cal_value_t val_type = esp_adc_cal_characterize((adc_unit_t)ADC_UNIT_1, (adc_atten_t)ADC1_CHANNEL_6, (adc_bits_width_t)ADC_WIDTH_BIT_12, 1100, &adc_chars);
-    //Check type of calibration value used to characterize ADC
-    if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
-        Serial.printf("-->[SETUP] ADC eFuse Vref:%u mV\n", adc_chars.vref);
-        vref = adc_chars.vref;
-    } else if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP) {
-        Serial.printf("-->[SETUP] ADC Two Point --> coeff_a:%umV coeff_b:%umV\n", adc_chars.coeff_a, adc_chars.coeff_b);
-    } else {
-        Serial.println("-->[SETUP] ADC Default Vref: 1100mV");
-    }
-    pinMode(PMS_EN,OUTPUT);
+    buttonInit();
+    setupBattery();
+    setupADC();
+    pinMode(PMS_EN, OUTPUT);
     showWelcome();
 }
 
