@@ -36,12 +36,16 @@ void espDelay(int ms) {
     esp_light_sleep_start();
 }
 
+float getVoltage() {
+    uint16_t v = analogRead(ADC_PIN);
+    return ((float)v / 4095.0) * 2.0 * 3.3 * (vref / 1000.0);
+}
+
 void showVoltage() {
     static uint64_t timeStamp = 0;
     if (millis() - timeStamp > 1000) {
         timeStamp = millis();
-        uint16_t v = analogRead(ADC_PIN);
-        float battery_voltage = ((float)v / 4095.0) * 2.0 * 3.3 * (vref / 1000.0);
+        float battery_voltage = getVoltage();
         String voltage = "" + String(battery_voltage) + "v";
         Serial.printf("-->[UI] voltage: %s\n",voltage.c_str());
 #ifdef ENABLE_TFT
@@ -62,9 +66,8 @@ void wifi_scan() {
     tft.fillScreen(TFT_BLACK);
     tft.setTextDatum(MC_DATUM);
     tft.setTextSize(2);
-    tft.drawString("Scan Network", tft.width() / 2, tft.height() / 2);
+    tft.drawString("Scan Network", tft.width() / 2, tft.height() / 2);    
 #endif
-
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
     delay(100);
@@ -90,6 +93,7 @@ void wifi_scan() {
 #endif
     WiFi.mode(WIFI_OFF);
     Serial.printf("-->[WiFi] Found %d net\n", n);
+    espDelay(2000);
 }
 
 void sensorInit(){
@@ -132,13 +136,17 @@ char getLoaderChar(){
 
 void showValues(uint16_t pm25, uint16_t pm10) {
     char output[22];
-    sprintf(output, "PM25:%03d", pm25);
+    sprintf(output, "%03d", pm25);
     Serial.println(output);
 #ifdef ENABLE_TFT
-    tft.fillScreen(TFT_BLACK);
     tft.setTextDatum(MC_DATUM);
-    tft.setTextSize(4);
-    tft.drawString(String(output), tft.width() / 2, tft.height() / 2 - 24);
+    tft.setTextSize(8);
+    tft.fillScreen(TFT_BLACK);
+    tft.drawString(String(output), tft.width() / 2, tft.height() / 2 );
+    String voltage = "" + String(getVoltage()) + "v";
+    tft.setTextDatum(BR_DATUM);
+    tft.setTextSize(3);
+    tft.drawString(String(voltage), tft.width(), 135);
 #endif
 }
 
@@ -179,13 +187,14 @@ void showWelcome() {
 #ifdef ENABLE_TFT
     tft.fillScreen(TFT_BLACK);
     tft.setTextDatum(MC_DATUM);
-    tft.drawString("LeftBtn:", tft.width() / 2, tft.height() / 2 - 32);
-    tft.drawString("[WiFi Scan]", tft.width() / 2, tft.height() / 2 - 16);
-    tft.drawString("RightBtn:", tft.width() / 2, tft.height() / 2);
-    tft.drawString("[Voltage Monitor]", tft.width() / 2, tft.height() / 2 + 16);
-    tft.drawString("RightBtnLongPress:", tft.width() / 2, tft.height() / 2 + 32);
-    tft.drawString("[Deep Sleep]", tft.width() / 2, tft.height() / 2 + 48);
+    tft.drawString("MENU KEYS", tft.width() / 2, 0);
     tft.setTextDatum(TL_DATUM);
+    tft.drawString("[Button1]", 0, 20);
+    tft.drawString("Click: Sensor On", 0, 37);
+    tft.drawString("Press: WifiScan", 0, 54);
+    tft.drawString("[Button2]", 0, 71);
+    tft.drawString("Click: Voltage", 0, 88);
+    tft.drawString("Press: Suspend", 0, 105);
 #endif
     Serial.println("-->[UI] Welcome");
 }
@@ -234,19 +243,20 @@ void button_init() {
         btn1click = false;
         suspend();
     });
-    btn1.setPressedHandler([](Button2 &b) {
+    
+    btn1.setClickHandler([](Button2 &b) {
         Serial.println("-->[Btn1 Detect:] Voltage..");
         btn1click = !btn1click;
         showVoltage();
     });
 
     btn2.setLongClickHandler([](Button2 &b){
-        // Serial.println("Btn2 Wifi scan");
-        // btn1click = false;
-        // wifi_scan();
+        Serial.println("-->[Btn2 Detect:] Wifi Scan..");
+        btn1click = false;
+        wifi_scan();
     });
 
-    btn2.setPressedHandler([](Button2 &b) {
+    btn2.setClickHandler([](Button2 &b) {
         btn1click = false;
         sensorToggle = !sensorToggle;
         enableSensor(sensorToggle);
