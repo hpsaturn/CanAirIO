@@ -3,25 +3,10 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>
 #include <Wire.h>
+#include <hal.hpp>
 // #include <vector>
 #include "WiFi.h"
 #include "esp_adc_cal.h"
-
-#ifndef TFT_DISPOFF
-#define TFT_DISPOFF 0x28
-#endif
-
-#ifndef TFT_SLPIN
-#define TFT_SLPIN 0x10
-#endif
-
-#define ADC_EN 14
-#define ADC_PIN 34
-#define BUTTON_1 35
-#define BUTTON_2 0
-#define PMS_EN 27   // Panasonic enable pin (2N2222A switch to booster module)
-
-#define ENABLE_TFT
 
 #ifdef ENABLE_TFT
 TFT_eSPI tft = TFT_eSPI(135, 240);  // Invoke custom library
@@ -34,9 +19,6 @@ int vref = 1100;
 long count = 0;
 bool btn1click;
 bool sensorToggle;
-
-#define HPMA_RX 13  // config for D1MIN1 board
-#define HPMA_TX 14
 
 HardwareSerial hpmaSerial(1);
 HPMA115S0 hpma115S0(hpmaSerial);
@@ -113,21 +95,20 @@ void wifi_scan() {
 void sensorInit(){
   Serial.println("-->[PMSensor] Starting Panasonic sensor..");
   delay(100);
-  hpmaSerial.begin(9600,SERIAL_8N1,HPMA_RX,HPMA_TX);
+  hpmaSerial.begin(9600,SERIAL_8N1,PMS_RX,PMS_TX);
   delay(100);
 }
 
 void showSensorStatus() {
-    int pm_en = digitalRead(TFT_BL);
 #ifdef ENABLE_TFT
     tft.fillScreen(TFT_BLACK);
     tft.setTextDatum(MC_DATUM);
     tft.setTextSize(2);
     tft.drawString("Enable Sensor:", tft.width() / 2, tft.height() / 2 - 24);
     tft.setTextSize(4);
-    tft.drawString(String(pm_en), tft.width() / 2, tft.height() / 2 + 8);
+    tft.drawString(String(sensorToggle), tft.width() / 2, tft.height() / 2 + 8);
 #endif
-    Serial.printf("-->[UI] Enable sensor: %d\n", pm_en);
+    Serial.printf("-->[UI] Enable sensor: %s\n", sensorToggle ? "true" : "false");
 }
 
 void enableSensor(bool enable) {
@@ -213,12 +194,6 @@ void displayTurnOff() {
 #ifdef ENABLE_TFT
     int r = digitalRead(TFT_BL);
     tft.fillScreen(TFT_BLACK);
-    tft.setTextColor(TFT_GREEN, TFT_BLACK);
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextSize(1);
-    tft.drawString("Press again to wake up", tft.width() / 2, tft.height() / 2);
-    espDelay(2000);
-    tft.fillScreen(TFT_BLACK);
     digitalWrite(TFT_BL, !r);
     tft.writecommand(TFT_DISPOFF);
     tft.writecommand(TFT_SLPIN);
@@ -230,18 +205,14 @@ void displayInit() {
     tft.init();
     tft.setRotation(3);
     tft.fillScreen(TFT_BLACK);
-    // tft.setTextSize(2);
     tft.setTextColor(TFT_GREEN);
     tft.setCursor(0, 0);
     tft.setTextDatum(MC_DATUM);
     tft.setTextSize(2);
-
     if (TFT_BL > 0) {                            // TFT_BL has been set in the TFT_eSPI library in the User Setup file TTGO_T_Display.h
         pinMode(TFT_BL, OUTPUT);                 // Set backlight pin to output mode
-        digitalWrite(TFT_BL, TFT_BACKLIGHT_ON);  // Turn backlight on. TFT_BACKLIGHT_ON has been set in the TFT_eSPI library in the User Setup file TTGO_T_Display.h
+        digitalWrite(TFT_BL,TFT_BACKLIGHT_ON);  // Turn backlight on. TFT_BACKLIGHT_ON has been set in the TFT_eSPI library in the User Setup file TTGO_T_Display.h
     }
-
-    tft.setSwapBytes(true);
 #endif
 }
 
