@@ -39,18 +39,22 @@ void espDelay(int ms) {
 
 void showVoltage() {
     static uint64_t timeStamp = 0;
-    if (millis() - timeStamp > 1000) {
+    if (millis() - timeStamp > 3000) {
         timeStamp = millis();
-        float battery_voltage = battGetVoltage();
-        String voltage = "" + String(battery_voltage) + "v";
+        float volts = battGetVoltage();
+        String voltage = "" + String(volts) + "v";
         Serial.printf("-->[UI] voltage: %s\n", voltage.c_str());
 #ifdef ENABLE_TFT
         tft.fillScreen(TFT_BLACK);
-        tft.setTextDatum(MC_DATUM);
+        tft.setTextDatum(TC_DATUM);
         tft.setTextSize(2);
-        tft.drawString("Voltage:", tft.width() / 2, tft.height() / 2 - 24);
-        tft.setTextSize(4);
-        tft.drawString(voltage, tft.width() / 2, tft.height() / 2 + 8);
+        tft.drawString("Voltage:", tft.width()/2 , 0);
+        tft.setTextDatum(MC_DATUM);
+        tft.setTextSize(6);
+        tft.drawString(voltage, tft.width() / 2, tft.height() / 2 );
+        String percentage = "" + String(battCalcPercentage(volts)) + "%";
+        tft.setTextSize(3);
+        tft.drawString(percentage, tft.width() / 2, tft.height() / 2 + 44);
 #endif
     }
 }
