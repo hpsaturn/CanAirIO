@@ -41,7 +41,7 @@ void showVoltage() {
     static uint64_t timeStamp = 0;
     if (millis() - timeStamp > 1000) {
         timeStamp = millis();
-        float battery_voltage = getVoltage();
+        float battery_voltage = battGetVoltage();
         String voltage = "" + String(battery_voltage) + "v";
         Serial.printf("-->[UI] voltage: %s\n", voltage.c_str());
 #ifdef ENABLE_TFT
@@ -139,9 +139,9 @@ void showValues(uint16_t pm25, uint16_t pm10) {
     tft.setTextSize(8);
     tft.fillScreen(TFT_BLACK);
     tft.drawString(String(output), tft.width() / 2, tft.height() / 2);
-    float volts = getVoltage();
+    float volts = battGetVoltage();
     String voltage = "" + String(volts) + "v";
-    String battery = "" + String(calcPercentage(volts)) + "%";
+    String battery = "" + String(battCalcPercentage(volts)) + "%";
     tft.setTextSize(3);
     tft.setTextDatum(BR_DATUM);
     tft.drawString(voltage, tft.width(), 135);
@@ -276,7 +276,7 @@ void setup() {
     sensorInit();
     buttonInit();
     setupBattery();
-    setupADC();
+    setupBattADC();
     pinMode(PMS_EN, OUTPUT);
     showWelcome();
 }
