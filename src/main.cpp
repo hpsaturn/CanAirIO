@@ -37,6 +37,8 @@ Adafruit_BME680 bme; // I2C
 // unsigned int apm10 = 0;        // last PM10 average
 #define SENSOR_RETRY 1000  // Sensor read retry
 
+void bme680loop();
+
 //! Long time delay, it is recommended to use shallow sleep, which can effectively reduce the current consumption
 void espDelay(int ms) {
     esp_sleep_enable_timer_wakeup(ms * 1000);
@@ -141,6 +143,20 @@ char getLoaderChar() {
     return loader[random(0, 4)];
 }
 
+void showBME680Values(){
+#ifdef ENABLE_TFT
+    tft.setTextSize(2);
+    tft.setTextDatum(BL_DATUM);
+    String outln1 = "T:"+String(bme.temperature)+"C"+" HR:"+bme.humidity+"%";
+    tft.drawString(outln1,0,tft.height()-36);
+    String outln2 = "P:"+String(bme.pressure / 100.0 )+"hPa"; 
+    tft.drawString(outln2,0,tft.height()-18);
+    String outln3 = "GAS:"+String(bme.gas_resistance / 1000.0 )+"KHm";
+    tft.drawString(outln3,0,tft.height());
+#endif
+    bme680loop();
+}
+
 void showValues(uint16_t pm25, uint16_t pm10) {
     char output[22];
     sprintf(output, "%03d", pm25);
@@ -149,16 +165,18 @@ void showValues(uint16_t pm25, uint16_t pm10) {
     tft.setTextDatum(MC_DATUM);
     tft.setTextSize(8);
     tft.fillScreen(TFT_BLACK);
-    tft.drawString(String(output), tft.width() / 2, tft.height() / 2);
+    tft.drawString(String(output), tft.width() / 2, tft.height() / 2-24);
+    tft.setTextSize(1);
+    tft.drawString("PM2.5", tft.width() / 2+75, tft.height() / 2 - 2);
     float volts = battGetVoltage();
     String voltage = "" + String(volts) + "v";
-    String battery = "" + String(battCalcPercentage(volts)) + "%";
-    tft.setTextSize(3);
-    tft.setTextDatum(BR_DATUM);
-    tft.drawString(voltage, tft.width(), 135);
-    tft.setTextDatum(BL_DATUM);
-    tft.drawString(battery, 0, 135);
+    String battery = "BATT:" + String(battCalcPercentage(volts)) + "%";
+    tft.setTextSize(1);
+    tft.drawString(battery, 0, 0);
+    tft.setTextDatum(TR_DATUM);
+    tft.drawString(voltage, tft.width(), 0);
 #endif
+    showBME680Values();
 }
 
 void sensorLoop() {
@@ -276,57 +294,48 @@ void buttonInit() {
 }
 
 void bme680loop() {
-    static uint64_t timeStamp = 0;
-    if (millis() - timeStamp > 5000) {
-        timeStamp = millis();
-        // Tell BME680 to begin measurement.
-        unsigned long endTime = bme.beginReading();
-        if (endTime == 0) {
-            Serial.println(F("Failed to begin reading :("));
-            return;
-        }
-        Serial.print(F("Reading started at "));
-        Serial.print(millis());
-        Serial.print(F(" and will finish at "));
-        Serial.println(endTime);
-
-        Serial.println(F("You can do other work during BME680 measurement."));
-        delay(50);  // This represents parallel work.
-        // There's no need to delay() until millis() >= endTime: bme.endReading()
-        // takes care of that. It's okay for parallel work to take longer than
-        // BME680's measurement time.
-
-        // Obtain measurement results from BME680. Note that this operation isn't
-        // instantaneous even if milli() >= endTime due to I2C/SPI latency.
-        if (!bme.endReading()) {
-            Serial.println(F("Failed to complete reading :("));
-            return;
-        }
-        Serial.print(F("Reading completed at "));
-        Serial.println(millis());
-
-        Serial.print(F("Temperature = "));
-        Serial.print(bme.temperature);
-        Serial.println(F(" *C"));
-
-        Serial.print(F("Pressure = "));
-        Serial.print(bme.pressure / 100.0);
-        Serial.println(F(" hPa"));
-
-        Serial.print(F("Humidity = "));
-        Serial.print(bme.humidity);
-        Serial.println(F(" %"));
-
-        Serial.print(F("Gas = "));
-        Serial.print(bme.gas_resistance / 1000.0);
-        Serial.println(F(" KOhms"));
-
-        Serial.print(F("Approx. Altitude = "));
-        Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
-        Serial.println(F(" m"));
-
-        Serial.println();
+    // Tell BME680 to begin measurement.
+    unsigned long endTime = bme.beginReading();
+    if (endTime == 0) {
+        Serial.println(F("-->[BME680] Failed to begin reading :("));
+        return;
     }
+    Serial.print(F("-->[BME680] Reading started at "));
+    Serial.print(millis());
+    Serial.print(F(" and will finish at "));
+    Serial.println(endTime);
+    // There's no need to delay() until millis() >= endTime: bme.endReading()
+    // takes care of that. It's okay for parallel work to take longer than
+    // BME680's measurement time.
+
+    // Obtain measurement results from BME680. Note that this operation isn't
+    // instantaneous even if milli() >= endTime due to I2C/SPI latency.
+    if (!bme.endReading()) {
+        Serial.println(F("-->[BME680] Failed to complete reading :("));
+        return;
+    }
+    Serial.print(F("-->[BME680] Reading completed at "));
+    Serial.println(millis());
+
+    Serial.print(F("-->[BME680] T:"));
+    Serial.print(bme.temperature);
+    Serial.print(F("C "));
+
+    Serial.print(F("P:"));
+    Serial.print(bme.pressure / 100.0);
+    Serial.print(F("hPa "));
+
+    Serial.print(F("H:"));
+    Serial.print(bme.humidity);
+    Serial.print(F("% "));
+
+    Serial.print(F("G:"));
+    Serial.print(bme.gas_resistance / 1000.0);
+    Serial.print(F("KOhms "));
+
+    Serial.print(F("A:"));
+    Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
+    Serial.println(F("m "));
 }
 
 void setupBme680() {
@@ -357,7 +366,8 @@ void setup() {
     setupBattADC();
     setupBme680();
     pinMode(PMS_EN, OUTPUT);
-    enableSensor(true);
+    sensorToggle = !sensorToggle;
+    enableSensor(sensorToggle);
     showWelcome();
 }
 
@@ -366,5 +376,4 @@ void loop() {
     if (btn1click) showVoltage();
     button_loop();
     if (sensorToggle) sensorLoop();
-    bme680loop();
 }
