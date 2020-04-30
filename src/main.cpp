@@ -3,10 +3,8 @@
 #include <TFT_eSPI.h>
 #include <Wire.h>
 #include <hpma115S0.h>
-#include <Adafruit_Sensor.h>
-#include "Adafruit_BME680.h"
-
 #include <battery.hpp>
+#include <bme680.hpp>
 #include <hal.hpp>
 
 #include "WiFi.h"
@@ -21,23 +19,18 @@ Button2 btn2(BUTTON_2);
 char buff[512];
 long count = 0;
 bool btn1click;
-bool sensorToggle;
-
 
 HardwareSerial hpmaSerial(1);
 HPMA115S0 hpma115S0(hpmaSerial);
-
-#define SEALEVELPRESSURE_HPA (1013.25)
-
-Adafruit_BME680 bme; // I2C
 
 // vector<unsigned int> v25;      // for average
 // vector<unsigned int> v10;      // for average
 // unsigned int apm25 = 0;        // last PM2.5 average
 // unsigned int apm10 = 0;        // last PM10 average
 #define SENSOR_RETRY 1000  // Sensor read retry
+#define SENSOR_INTERVAL 1000*60*5 // 5 minutes
+#define SENSOR_SAMPLE 1000*30*5 // 5 minutes
 
-void bme680loop();
 
 //! Long time delay, it is recommended to use shallow sleep, which can effectively reduce the current consumption
 void espDelay(int ms) {
@@ -112,18 +105,6 @@ void sensorInit() {
     delay(100);
 }
 
-void showSensorStatus() {
-#ifdef ENABLE_TFT
-    tft.fillScreen(TFT_BLACK);
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextSize(2);
-    tft.drawString("Enable Sensor:", tft.width() / 2, tft.height() / 2 - 24);
-    tft.setTextSize(4);
-    tft.drawString(String(sensorToggle), tft.width() / 2, tft.height() / 2 + 8);
-#endif
-    Serial.printf("-->[UI] Enable sensor: %s\n", sensorToggle ? "true" : "false");
-}
-
 void enableSensor(bool enable) {
     if (enable)
         digitalWrite(PMS_EN, HIGH);
@@ -147,17 +128,16 @@ void showBME680Values(){
 #ifdef ENABLE_TFT
     tft.setTextSize(2);
     tft.setTextDatum(BL_DATUM);
-    String outln1 = "T:"+String(bme.temperature)+"C"+" HR:"+bme.humidity+"%";
+    String outln1 = "T:"+getTemperature()+" HR:"+getHumidity();
     tft.drawString(outln1,0,tft.height()-36);
-    String outln2 = "P:"+String(bme.pressure / 100.0 )+"hPa"; 
+    String outln2 = "P:"+getPressure()+" A:"+getAltitude();
     tft.drawString(outln2,0,tft.height()-18);
-    String outln3 = "GAS:"+String(bme.gas_resistance / 1000.0 )+"KHm";
+    String outln3 = "GAS:"+getGas();
     tft.drawString(outln3,0,tft.height());
 #endif
-    bme680loop();
 }
 
-void showValues(uint16_t pm25, uint16_t pm10) {
+void showPMSValues(uint16_t pm25, uint16_t pm10) {
     char output[22];
     sprintf(output, "%03d", pm25);
     Serial.println(output);
@@ -176,7 +156,6 @@ void showValues(uint16_t pm25, uint16_t pm10) {
     tft.setTextDatum(TR_DATUM);
     tft.drawString(voltage, tft.width(), 0);
 #endif
-    showBME680Values();
 }
 
 void sensorLoop() {
@@ -204,7 +183,8 @@ void sensorLoop() {
             unsigned int pm25 = txtMsg[6] * 256 + byte(txtMsg[5]);
             unsigned int pm10 = txtMsg[10] * 256 + byte(txtMsg[9]);
             if (pm25 < 1000 && pm10 < 1000) {
-                showValues(pm25, pm10);
+                showPMSValues(pm25, pm10);
+                showBME680Values();
             } else
                 wrongDataState();
         } else
@@ -256,7 +236,6 @@ void displayInit() {
 
 void suspend() {
     count = 0;
-    enableSensor(false);
     displayTurnOff();
     //After using light sleep, you need to disable timer wake, because here use external IO port to wake up
     esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
@@ -287,68 +266,7 @@ void buttonInit() {
 
     btn2.setClickHandler([](Button2 &b) {
         btn1click = false;
-        sensorToggle = !sensorToggle;
-        enableSensor(sensorToggle);
-        showSensorStatus();
     });
-}
-
-void bme680loop() {
-    // Tell BME680 to begin measurement.
-    unsigned long endTime = bme.beginReading();
-    if (endTime == 0) {
-        Serial.println(F("-->[BME680] Failed to begin reading :("));
-        return;
-    }
-    Serial.print(F("-->[BME680] Reading started at "));
-    Serial.print(millis());
-    Serial.print(F(" and will finish at "));
-    Serial.println(endTime);
-    // There's no need to delay() until millis() >= endTime: bme.endReading()
-    // takes care of that. It's okay for parallel work to take longer than
-    // BME680's measurement time.
-
-    // Obtain measurement results from BME680. Note that this operation isn't
-    // instantaneous even if milli() >= endTime due to I2C/SPI latency.
-    if (!bme.endReading()) {
-        Serial.println(F("-->[BME680] Failed to complete reading :("));
-        return;
-    }
-    Serial.print(F("-->[BME680] Reading completed at "));
-    Serial.println(millis());
-
-    Serial.print(F("-->[BME680] T:"));
-    Serial.print(bme.temperature);
-    Serial.print(F("C "));
-
-    Serial.print(F("P:"));
-    Serial.print(bme.pressure / 100.0);
-    Serial.print(F("hPa "));
-
-    Serial.print(F("H:"));
-    Serial.print(bme.humidity);
-    Serial.print(F("% "));
-
-    Serial.print(F("G:"));
-    Serial.print(bme.gas_resistance / 1000.0);
-    Serial.print(F("KOhms "));
-
-    Serial.print(F("A:"));
-    Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
-    Serial.println(F("m "));
-}
-
-void setupBme680() {
-    if (!bme.begin()) {
-        Serial.println(F("Could not find a valid BME680 sensor, check wiring!"));
-        return;
-    }
-    // Set up oversampling and filter initialization
-    bme.setTemperatureOversampling(BME680_OS_8X);
-    bme.setHumidityOversampling(BME680_OS_2X);
-    bme.setPressureOversampling(BME680_OS_4X);
-    bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
-    bme.setGasHeater(320, 150);  // 320*C for 150 ms
 }
 
 void button_loop() {
@@ -366,14 +284,13 @@ void setup() {
     setupBattADC();
     setupBme680();
     pinMode(PMS_EN, OUTPUT);
-    sensorToggle = !sensorToggle;
-    enableSensor(sensorToggle);
+    enableSensor(true);
     showWelcome();
 }
 
 void loop() {
     // if (count++ > 6000000) suspend();
-    if (btn1click) showVoltage();
     button_loop();
-    if (sensorToggle) sensorLoop();
+    sensorLoop();
+    bme680loop();
 }
