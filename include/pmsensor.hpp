@@ -2,7 +2,7 @@
 
 #include "hal.hpp"
 
-#define SENSOR_INTERVAL 1000 * 60 * 5  // 2 minutes => more is better for the battery
+#define SENSOR_INTERVAL 1000 * 60 * 3  // 2 minutes => more is better for the battery
 #define SENSOR_SAMPLE 1000 * 30        // 35 seconds => less is better for the battery
 #define SENSOR_RETRY 1000              // Sensor read retry
 

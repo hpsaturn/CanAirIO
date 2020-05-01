@@ -5,6 +5,7 @@
 #include <battery.hpp>
 #include <bme680.hpp>
 #include <pmsensor.hpp>
+#include <sleep.hpp>
 #include <hal.hpp>
 
 #include "WiFi.h"
@@ -13,19 +14,14 @@
 #ifdef ENABLE_TFT
 TFT_eSPI tft = TFT_eSPI(135, 240);  // Invoke custom library
 #endif
-Button2 btn1(BUTTON_1);
-Button2 btn2(BUTTON_2);
+
+// Button2 btn1(BUTTON_1);
+// Button2 btn2(BUTTON_2);
 
 char buff[512];
 long count = 0;
 bool btn1click;
-
-//! Long time delay, it is recommended to use shallow sleep, which can effectively reduce the current consumption
-void espDelay(int ms) {
-    esp_sleep_enable_timer_wakeup(ms * 1000);
-    esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);
-    esp_light_sleep_start();
-}
+bool lowPowerMode;
 
 void showVoltage() {
     static uint64_t timeStamp = 0;
@@ -83,41 +79,47 @@ void wifi_scan() {
 #endif
     WiFi.mode(WIFI_OFF);
     Serial.printf("-->[WiFi] Found %d net\n", n);
-    espDelay(2000);
+    espShallowSleep(2000);
 }
 
-void showBME680Values(){
+void showBME680Values() {
+    // static uint64_t timeStamp = 0;
+    // if (millis() - timeStamp > 5000) {
+    //     timeStamp = millis();
 #ifdef ENABLE_TFT
-    tft.setTextSize(2);
-    tft.setTextDatum(BL_DATUM);
-    String outln1 = "T:"+getTemperature()+" HR:"+getHumidity();
-    tft.drawString(outln1,0,tft.height()-36);
-    String outln2 = "P:"+getPressure()+" A:"+getAltitude();
-    tft.drawString(outln2,0,tft.height()-18);
-    String outln3 = "GAS:"+getGas();
-    tft.drawString(outln3,0,tft.height());
+        tft.setTextSize(2);
+        tft.setTextDatum(BL_DATUM);
+        String outln1 = "T:" + getTemperature() + " HR:" + getHumidity();
+        tft.drawString(outln1, 0, tft.height() - 36);
+        String outln2 = "P:" + getPressure() + " A:" + getAltitude();
+        tft.drawString(outln2, 0, tft.height() - 18);
+        String outln3 = "GAS:" + getGas();
+        tft.drawString(outln3, 0, tft.height());
 #endif
+    // }
 }
 
 void showPMSValues() {
+    // static uint64_t timeStamp = 0;
+    // if (millis() - timeStamp > 5000) {
+    //     timeStamp = millis();
 #ifdef ENABLE_TFT
-    tft.fillScreen(TFT_BLACK);
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextSize(8);
-    tft.drawString(getStringPM25(), tft.width() / 2, tft.height() / 2-24);
-    tft.setTextSize(1);
-    tft.drawString("PM2.5", tft.width() / 2+75, tft.height() / 2 - 2);
-    float volts = battGetVoltage();
-    String voltage = "" + String(volts) + "v";
-    String battery = "BATT:" + String(battCalcPercentage(volts)) + "%";
-    tft.setTextSize(1);
-    tft.drawString(battery, 0, 0);
-    tft.setTextDatum(TR_DATUM);
-    tft.drawString(voltage, tft.width(), 0);
+        tft.fillScreen(TFT_BLACK);
+        tft.setTextDatum(MC_DATUM);
+        tft.setTextSize(8);
+        tft.drawString(getStringPM25(), tft.width() / 2, tft.height() / 2 - 24);
+        tft.setTextSize(1);
+        tft.drawString("PM2.5", tft.width() / 2 + 75, tft.height() / 2 - 2);
+        float volts = battGetVoltage();
+        String voltage = "" + String(volts) + "v";
+        String battery = "BATT:" + String(battCalcPercentage(volts)) + "%";
+        tft.setTextSize(1);
+        tft.drawString(battery, 0, 0);
+        tft.setTextDatum(TR_DATUM);
+        tft.drawString(voltage, tft.width(), 0);
 #endif
+    // }
 }
-
-
 
 void showWelcome() {
 #ifdef ENABLE_TFT
@@ -161,65 +163,61 @@ void displayInit() {
 #endif
 }
 
-void suspend() {
-    count = 0;
+void btn1Click() {
+    Serial.println("-->[Btn1LngPress:] Suspend..");
     displayTurnOff();
-    //After using light sleep, you need to disable timer wake, because here use external IO port to wake up
-    esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
-    // esp_sleep_enable_ext1_wakeup(GPIO_SEL_35, ESP_EXT1_WAKEUP_ALL_LOW);
-    esp_sleep_enable_ext0_wakeup(GPIO_NUM_35, 0);
-    delay(200);
-    esp_deep_sleep_start();
+    espDeepSleep();
 }
+
+void btn2Click() {
+    Serial.println("-->[Btn2 Detect:] Voltage..");
+    showVoltage();
+}
+
+// void buttonLoop() {
+//     btn1.loop();
+//     btn2.loop();
+// }
 
 void buttonInit() {
-    btn1.setLongClickHandler([](Button2 &b) {
-        Serial.println("-->[Btn1LngPress:] Suspend..");
-        btn1click = false;
-        suspend();
-    });
 
-    btn1.setClickHandler([](Button2 &b) {
-        Serial.println("-->[Btn1 Detect:] Voltage..");
-        btn1click = !btn1click;
-        showVoltage();
-    });
+    pinMode(BUTTON_2, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(BUTTON_2), btn1Click, FALLING);
 
-    btn2.setLongClickHandler([](Button2 &b) {
-        Serial.println("-->[Btn2 Detect:] Wifi Scan..");
-        btn1click = false;
-        wifi_scan();
-    });
+    // btn1.setLongClickHandler([](Button2 &b) {
+    //     btn1Click();
+    // });
 
-    btn2.setClickHandler([](Button2 &b) {
-        btn1click = false;
-    });
-}
+    // btn1.setClickHandler([](Button2 &b) {
+    // });
 
-void button_loop() {
-    btn1.loop();
-    btn2.loop();
+    // btn2.setLongClickHandler([](Button2 &b) {
+    //     Serial.println("-->[Btn2 Detect:] Wifi Scan..");
+    //     wifi_scan();
+    // });
+
+    // btn2.setClickHandler([](Button2 &b) {
+    //     showVoltage();
+    // });
 }
 
 void setup() {
     Serial.begin(115200);
     Serial.println("\n-->[SETUP] init:");
     displayInit();
+    showPMSValues();
+    showBME680Values();
     pmsensorInit();
     buttonInit();
     setupBattery();
     setupBattADC();
     bmeInit();
-    showPMSValues();
-    showBME680Values();
 }
 
 void loop() {
-    // if (count++ > 4) suspend();
-    button_loop();
     bmeLoop();
     pmsensorLoop();
     showPMSValues();
     showBME680Values();
-    espDelay(5000);
+    espShallowSleep(5000);
 }
