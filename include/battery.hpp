@@ -2,10 +2,10 @@
 #include <esp_adc_cal.h>
 #include "hal.hpp"
 
-#define BATTERY_MIN_V 3.0
+#define BATTERY_MIN_V 2.9
 #define BATTERY_MAX_V 4.1
-#define BATTCHARG_MIN_V 4.4
-#define BATTCHARG_MAX_V 4.8
+#define BATTCHARG_MIN_V 4.6
+#define BATTCHARG_MAX_V 4.85
 
 void setupBattADC();
 void setupBattery();
