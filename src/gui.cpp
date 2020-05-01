@@ -4,6 +4,12 @@
 TFT_eSPI tft = TFT_eSPI(135, 240);  // Invoke custom library
 #endif
 
+void showMainPage(){
+    showBatteryStatus();
+    showPMSValues();
+    showBME680Values();
+}
+
 void showBatteryStatus() {
 #ifdef ENABLE_TFT
     float volts = battGetVoltage();
@@ -36,7 +42,7 @@ void showPMSValues() {
     tft.setTextSize(8);
     tft.drawString(getStringPM25(), tft.width() / 2, tft.height() / 2 - 24);
     tft.setTextSize(1);
-    tft.drawString("PM2.5", tft.width() / 2 + 75, tft.height() / 2 - 2);
+    tft.drawString("PM2.5", tft.width() / 2 + 75, tft.height() / 2 - 4);
 #endif
 }
 
@@ -74,7 +80,7 @@ void showWelcome() {
     Serial.println("-->[UI] Welcome");
 }
 
-void displayTurnOff() {
+void displayOff() {
 #ifdef ENABLE_TFT
     int r = digitalRead(TFT_BL);
     tft.fillScreen(TFT_BLACK);
@@ -103,8 +109,7 @@ void displayInit() {
 void guiLoop() {
     static uint64_t timeStamp = 0;
     if (millis() - timeStamp > 3000) {
-        showBatteryStatus();
-        showPMSValues();
-        showBME680Values();
+        timeStamp = millis();
+        showMainPage();
     }
 }

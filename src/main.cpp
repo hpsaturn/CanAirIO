@@ -16,13 +16,13 @@ bool lowPowerMode;
 
 void btn1Click() {
     Serial.println("-->[Btn1LngPress:] Suspend..");
-    displayTurnOff();
+    displayOff();
     espDeepSleep();
 }
 
 void btn2Click() {
     Serial.println("-->[Btn2 Detect:] Voltage..");
-    showVoltage();
+    showVoltagePage();
 }
 
 // void buttonLoop() {
@@ -56,8 +56,7 @@ void setup() {
     Serial.begin(115200);
     Serial.println("\n-->[SETUP] init:");
     displayInit();
-    showPMSValues();
-    showBME680Values();
+    showMainPage();
     pmsensorInit();
     buttonInit();
     setupBattery();

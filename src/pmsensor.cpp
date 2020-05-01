@@ -1,10 +1,5 @@
 #include "pmsensor.hpp"
 
-// vector<unsigned int> v25;      // for average
-// vector<unsigned int> v10;      // for average
-// unsigned int apm25 = 0;        // last PM2.5 average
-// unsigned int apm10 = 0;        // last PM10 average
-
 HardwareSerial hpmaSerial(1);
 HPMA115S0 hpma115S0(hpmaSerial);
 
@@ -69,9 +64,10 @@ void pmsensorLoop() {
         } else {
             Serial.println("-->[PMSensor] waiting for stable measure..");
         }
-    } else if (isInitSetup) {
+    } else if (isInitSetup && (millis() - pmTimeStamp > 5000)) {
         pmsensorEnable(true);
         pmsensorRead();
+        pmTimeStamp = millis();
         if (initSetupCount++ > 4) {
             isInitSetup = false;
             sampleCount = 0;

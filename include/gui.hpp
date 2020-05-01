@@ -6,11 +6,13 @@
 #include <pmsensor.hpp>
 #include <hal.hpp>
 
-void showVoltage();
+void showMainPage();
+void showVoltagePage();
+void showBatteryStatus();
 void showBME680Values();
 void showPMSValues();
 void showWelcome();
-void displayTurnOff();
+void displayOff();
 void displayInit();
 void guiLoop();
 
