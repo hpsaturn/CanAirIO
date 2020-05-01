@@ -2,9 +2,9 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>
 #include <Wire.h>
-#include <hpma115S0.h>
-
 #include <battery.hpp>
+#include <bme680.hpp>
+#include <pmsensor.hpp>
 #include <hal.hpp>
 
 #include "WiFi.h"
@@ -19,16 +19,6 @@ Button2 btn2(BUTTON_2);
 char buff[512];
 long count = 0;
 bool btn1click;
-bool sensorToggle;
-
-HardwareSerial hpmaSerial(1);
-HPMA115S0 hpma115S0(hpmaSerial);
-
-// vector<unsigned int> v25;      // for average
-// vector<unsigned int> v10;      // for average
-// unsigned int apm25 = 0;        // last PM2.5 average
-// unsigned int apm10 = 0;        // last PM10 average
-#define SENSOR_RETRY 1000  // Sensor read retry
 
 //! Long time delay, it is recommended to use shallow sleep, which can effectively reduce the current consumption
 void espDelay(int ms) {
@@ -96,96 +86,38 @@ void wifi_scan() {
     espDelay(2000);
 }
 
-void sensorInit() {
-    Serial.println("-->[PMSensor] Starting Panasonic sensor..");
-    delay(100);
-    hpmaSerial.begin(9600, SERIAL_8N1, PMS_RX, PMS_TX);
-    delay(100);
+void showBME680Values(){
+#ifdef ENABLE_TFT
+    tft.setTextSize(2);
+    tft.setTextDatum(BL_DATUM);
+    String outln1 = "T:"+getTemperature()+" HR:"+getHumidity();
+    tft.drawString(outln1,0,tft.height()-36);
+    String outln2 = "P:"+getPressure()+" A:"+getAltitude();
+    tft.drawString(outln2,0,tft.height()-18);
+    String outln3 = "GAS:"+getGas();
+    tft.drawString(outln3,0,tft.height());
+#endif
 }
 
-void showSensorStatus() {
+void showPMSValues() {
 #ifdef ENABLE_TFT
     tft.fillScreen(TFT_BLACK);
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextSize(2);
-    tft.drawString("Enable Sensor:", tft.width() / 2, tft.height() / 2 - 24);
-    tft.setTextSize(4);
-    tft.drawString(String(sensorToggle), tft.width() / 2, tft.height() / 2 + 8);
-#endif
-    Serial.printf("-->[UI] Enable sensor: %s\n", sensorToggle ? "true" : "false");
-}
-
-void enableSensor(bool enable) {
-    if (enable)
-        digitalWrite(PMS_EN, HIGH);
-    else
-        digitalWrite(PMS_EN, LOW);
-}
-
-void wrongDataState() {
-    Serial.println("-->[E][PMSensor] !wrong data!");
-    hpmaSerial.end();
-    sensorInit();
-    delay(500);
-}
-
-char getLoaderChar() {
-    char loader[] = {'/', '|', '\\', '-'};
-    return loader[random(0, 4)];
-}
-
-void showValues(uint16_t pm25, uint16_t pm10) {
-    char output[22];
-    sprintf(output, "%03d", pm25);
-    Serial.println(output);
-#ifdef ENABLE_TFT
     tft.setTextDatum(MC_DATUM);
     tft.setTextSize(8);
-    tft.fillScreen(TFT_BLACK);
-    tft.drawString(String(output), tft.width() / 2, tft.height() / 2);
+    tft.drawString(getStringPM25(), tft.width() / 2, tft.height() / 2-24);
+    tft.setTextSize(1);
+    tft.drawString("PM2.5", tft.width() / 2+75, tft.height() / 2 - 2);
     float volts = battGetVoltage();
     String voltage = "" + String(volts) + "v";
-    String battery = "" + String(battCalcPercentage(volts)) + "%";
-    tft.setTextSize(3);
-    tft.setTextDatum(BR_DATUM);
-    tft.drawString(voltage, tft.width(), 135);
-    tft.setTextDatum(BL_DATUM);
-    tft.drawString(battery, 0, 135);
+    String battery = "BATT:" + String(battCalcPercentage(volts)) + "%";
+    tft.setTextSize(1);
+    tft.drawString(battery, 0, 0);
+    tft.setTextDatum(TR_DATUM);
+    tft.drawString(voltage, tft.width(), 0);
 #endif
 }
 
-void sensorLoop() {
-    static uint64_t timeStamp = 0;
-    if (millis() - timeStamp > 5000) {
-        timeStamp = millis();
-        int try_sensor_read = 0;
-        String txtMsg = "";
-        while (txtMsg.length() < 32 && try_sensor_read++ < SENSOR_RETRY) {
-            while (hpmaSerial.available() > 0) {
-                char inChar = hpmaSerial.read();
-                txtMsg += inChar;
-                Serial.print("-->[PMSensor] read " + String(getLoaderChar()) + "\r");
-            }
-            Serial.print("-->[PMSensor] read " + String(getLoaderChar()) + "\r");
-        }
-        if (try_sensor_read > SENSOR_RETRY) {
-            Serial.println("-->[PMSensor] read > fail!");
-            Serial.println("-->[E][PMSensor] disconnected ?");
-            delay(500);  // waiting for sensor..
-        }
 
-        if (txtMsg[0] == 02) {
-            Serial.print("-->[PMSensor] read > done! ");
-            unsigned int pm25 = txtMsg[6] * 256 + byte(txtMsg[5]);
-            unsigned int pm10 = txtMsg[10] * 256 + byte(txtMsg[9]);
-            if (pm25 < 1000 && pm10 < 1000) {
-                showValues(pm25, pm10);
-            } else
-                wrongDataState();
-        } else
-            wrongDataState();
-    }
-}
 
 void showWelcome() {
 #ifdef ENABLE_TFT
@@ -216,7 +148,7 @@ void displayTurnOff() {
 void displayInit() {
 #ifdef ENABLE_TFT
     tft.init();
-    tft.setRotation(3);
+    tft.setRotation(1);
     tft.fillScreen(TFT_BLACK);
     tft.setTextColor(TFT_GREEN);
     tft.setCursor(0, 0);
@@ -231,7 +163,6 @@ void displayInit() {
 
 void suspend() {
     count = 0;
-    enableSensor(false);
     displayTurnOff();
     //After using light sleep, you need to disable timer wake, because here use external IO port to wake up
     esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
@@ -262,9 +193,6 @@ void buttonInit() {
 
     btn2.setClickHandler([](Button2 &b) {
         btn1click = false;
-        sensorToggle = !sensorToggle;
-        enableSensor(sensorToggle);
-        showSensorStatus();
     });
 }
 
@@ -277,17 +205,21 @@ void setup() {
     Serial.begin(115200);
     Serial.println("\n-->[SETUP] init:");
     displayInit();
-    sensorInit();
+    pmsensorInit();
     buttonInit();
     setupBattery();
     setupBattADC();
-    pinMode(PMS_EN, OUTPUT);
-    showWelcome();
+    bmeInit();
+    showPMSValues();
+    showBME680Values();
 }
 
 void loop() {
-    // if (count++ > 6000000) suspend();
-    if (btn1click) showVoltage();
+    // if (count++ > 4) suspend();
     button_loop();
-    if (sensorToggle) sensorLoop();
+    bmeLoop();
+    pmsensorLoop();
+    showPMSValues();
+    showBME680Values();
+    espDelay(5000);
 }
