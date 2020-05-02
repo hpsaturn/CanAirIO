@@ -1,16 +1,12 @@
 #include "pmsensor.hpp"
 
-// vector<unsigned int> v25;      // for average
-// vector<unsigned int> v10;      // for average
-// unsigned int apm25 = 0;        // last PM2.5 average
-// unsigned int apm10 = 0;        // last PM10 average
-
 HardwareSerial hpmaSerial(1);
 HPMA115S0 hpma115S0(hpmaSerial);
 
+uint16_t pm1;
 uint16_t pm25;
 uint16_t pm10;
-int sampleCount = 0;
+int scount = 0;
 bool isInitSetup = true;
 int initSetupCount = 0;
 
@@ -46,10 +42,11 @@ void pmsensorRead() {
         delay(500);  // waiting for sensor..
     }
     if (txtMsg[0] == 02) {
+        pm1  = txtMsg[2] * 256 + byte(txtMsg[1]);
         pm25 = txtMsg[6] * 256 + byte(txtMsg[5]);
         pm10 = txtMsg[10] * 256 + byte(txtMsg[9]);
-        Serial.print("-->[PMSensor] read > done! ");
-        Serial.printf("==> [#%02d] PM25:%03d PM10:%03d\n",++sampleCount, getPM25(), getPM10());
+        Serial.print("-->[PMSensor] read > done! ==> ");
+        Serial.printf("[S%02d][PM1:%03d][PM2.5:%03d][PM10:%03d]\n",++scount,getPM10(), getPM25(), getPM10());
     } else
         _wrongDataState();
 }
@@ -62,23 +59,34 @@ void pmsensorLoop() {
             pmsensorRead(); 
             pmTimeStamp = millis();
             pmsensorEnable(false);
-            sampleCount = 0;
+            scount = 0;
             Serial.println("-->[PMSensor] disable.");
         } else if ((millis() - pmTimeStamp > SENSOR_INTERVAL + SENSOR_SAMPLE / 2)) {
             pmsensorRead(); 
         } else {
             Serial.println("-->[PMSensor] waiting for stable measure..");
         }
-    } else if (isInitSetup) {
+    } else if (isInitSetup && (millis() - pmTimeStamp > 5000)) {
         pmsensorEnable(true);
         pmsensorRead();
+        pmTimeStamp = millis();
         if (initSetupCount++ > 4) {
             isInitSetup = false;
-            sampleCount = 0;
+            scount = 0;
             pmsensorEnable(false);
             Serial.println("-->[PMSensor] Setup done.");
         }
     } 
+}
+
+uint16_t getPM1() {
+    return pm1;
+}
+
+String getStringPM1() {
+    char output[5];
+    sprintf(output, "%03d", getPM1());
+    return String(output);
 }
 
 uint16_t getPM25() {
@@ -103,9 +111,9 @@ String getStringPM10() {
 
 void _wrongDataState() {
     Serial.println("-->[E][PMSensor] !wrong data!");
-    hpmaSerial.end();
-    pmsensorInit();
-    delay(100);
+    // hpmaSerial.end();
+    // pmsensorInit();
+    // delay(100);
 }
 
 char _getLoaderChar() {
