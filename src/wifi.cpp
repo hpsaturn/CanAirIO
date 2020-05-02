@@ -37,15 +37,17 @@ void influxDbInit() {
 void influxDbParseFields(char* fields){
   sprintf(
     fields,
-    "pm1=%u,pm25=%u,pm10=%u,hum=%f,tmp=%f,lat=%f,lng=%f,alt=%f,spd=%f,stime=%i,tstp=%u",
+    "pm1=%u,pm25=%u,pm10=%u,hum=%f,tmp=%f,prs=%f,gas=%f,lat=%f,lng=%f,alt=%f,spd=%f,stime=%i,tstp=%u",
     getPM1(),
     getPM25(),
     getPM10(),
     getHumidity(),
     getTemperature(),
+    getPressure(),
+    getGas(),
     cfg.lat,
     cfg.lon,
-    cfg.alt,
+    getAltitude(),
     cfg.spd,
     cfg.stime,
     0
@@ -65,30 +67,33 @@ bool influxDbWrite() {
 }
 
 void influxDbLoop() {
-  if(wifiOn && cfg.isIfxEnable() && influxDbIsConfigured()){
-    int ifx_retry = 0;
-    Serial.print("-->[INFLUXDB] writing to ");
-    Serial.print("" + cfg.ifxip + "..");
-    while(!influxDbWrite() && ( ifx_retry++ < IFX_RETRY_CONNECTION )){
-      Serial.print(".");
-      delay(200);
+    static uint64_t timeStamp = 0;
+    if (millis() - timeStamp > PUBLISH_INTERVAL*1000) {
+        timeStamp = millis();
+        if (pmsensorDataReady() && cfg.isIfxEnable() && influxDbIsConfigured()) {
+            int ifx_retry = 0;
+            Serial.print("-->[INFLUXDB] writing to ");
+            Serial.print("" + cfg.ifxip + "..");
+            while (!influxDbWrite() && (ifx_retry++ < IFX_RETRY_CONNECTION)) {
+                Serial.print(".");
+                delay(200);
+            }
+            if (ifx_retry > IFX_RETRY_CONNECTION) {
+                Serial.println("failed!\n-->[E][INFLUXDB] write error, try wifi restart..");
+                statusOff(bit_cloud);
+                setErrorCode(ecode_ifdb_write_fail);
+                wifiRestart();
+            } else {
+                Serial.println("done. [" + String(influx.getResponse()) + "]");
+                statusOn(bit_cloud);
+                dataSendToggle = true;
+            }
+        }
     }
-    if(ifx_retry > IFX_RETRY_CONNECTION ) {
-      Serial.println("failed!\n-->[E][INFLUXDB] write error, try wifi restart..");
-      statusOff(bit_cloud);
-      setErrorCode(ecode_ifdb_write_fail);
-      wifiRestart();
-    }
-    else {
-      Serial.println("done. ["+String(influx.getResponse())+"]");
-      statusOn(bit_cloud);
-      dataSendToggle = true;
-    }
-  }
 }
 
 /******************************************************************************
-*   C A N A I R I O  P U B L I S H   M E T H O D S
+*   C A N A I R I O  API   M E T H O D S
 ******************************************************************************/
 
 bool apiIsConfigured(){

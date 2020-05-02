@@ -43,6 +43,6 @@ void loop() {
     influxDbLoop();  // influxDB publication
     // statusLoop();    // update sensor status GUI
     otaLoop();       // check for firmware updates
-    delay(500);
+    // delay(500);
     // espShallowSleep(1000);
 }

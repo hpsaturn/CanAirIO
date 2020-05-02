@@ -75,7 +75,7 @@ float getHumidity(){
 }
 
 float getPressure(){
-  return bme.pressure;
+  return bme.pressure / 100.0;
 }
 
 float getAltitude(){
@@ -83,7 +83,7 @@ float getAltitude(){
 }
 
 float getGas(){
-  return bme.gas_resistance;
+  return bme.gas_resistance / 1000.0;
 }
 
 String getFormatTemp() {

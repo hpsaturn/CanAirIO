@@ -10,6 +10,7 @@ void pmsensorInit();
 void pmsensorEnable(bool enable);
 void pmsensorRead();
 void pmsensorLoop();
+bool pmsensorDataReady();
 
 String getStringPM1();
 String getStringPM25();
@@ -17,6 +18,3 @@ String getStringPM10();
 uint16_t getPM1();
 uint16_t getPM25();
 uint16_t getPM10();
-
-void _wrongDataState();
-char _getLoaderChar();
