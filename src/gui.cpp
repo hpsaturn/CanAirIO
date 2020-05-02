@@ -27,11 +27,11 @@ void showBME680Values() {
 #ifdef ENABLE_TFT
     tft.setTextSize(2);
     tft.setTextDatum(BL_DATUM);
-    String outln1 = "T:" + getTemperature() + " HR:" + getHumidity();
+    String outln1 = "T:" + getFormatTemp() + " HR:" + getFormatHum();
     tft.drawString(outln1, 0, tft.height() - 36);
-    String outln2 = "P:" + getPressure() + " A:" + getAltitude();
+    String outln2 = "P:" + getFormatPress() + " A:" + getFormatAlt();
     tft.drawString(outln2, 0, tft.height() - 18);
-    String outln3 = "GAS:" + getGas();
+    String outln3 = "GAS:" + getFormatGas();
     tft.drawString(outln3, 0, tft.height());
 #endif
 }

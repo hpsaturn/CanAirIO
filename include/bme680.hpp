@@ -6,9 +6,15 @@
 void bmeInit();
 void bmeLoop();
 
-String getTemperature();
-String getPressure();
-String getHumidity();
-String getGas();
-String getAltitude();
+float getTemperature();
+float getHumidity();
+float getPressure();
+float getAltitude();
+float getGas();
+
+String getFormatTemp();
+String getFormatPress();
+String getFormatHum();
+String getFormatGas();
+String getFormatAlt();
 

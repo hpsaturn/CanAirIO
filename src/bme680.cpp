@@ -66,22 +66,42 @@ void bmeLoop() {
     }
 }
 
-String getTemperature() {
+float getTemperature(){
+  return bme.temperature;
+}
+
+float getHumidity(){
+  return bme.humidity;
+}
+
+float getPressure(){
+  return bme.pressure;
+}
+
+float getAltitude(){
+  return altitude;
+}
+
+float getGas(){
+  return bme.gas_resistance;
+}
+
+String getFormatTemp() {
     return String(bme.temperature) + "C";
 }
 
-String getPressure() {
+String getFormatPress() {
     return String(bme.pressure / 100.0) + "hPa";
 }
 
-String getHumidity() {
+String getFormatHum() {
     return String(bme.humidity) + "%";
 }
 
-String getGas() {
+String getFormatGas() {
     return String(bme.gas_resistance / 1000.0) + "KOhms";
 }
 
-String getAltitude() {
+String getFormatAlt() {
     return String((int)altitude) + "m";
 }
