@@ -39,10 +39,14 @@ void showBME680Values() {
 void showPMSValues() {
 #ifdef ENABLE_TFT
     tft.setTextDatum(MC_DATUM);
-    tft.setTextSize(8);
-    tft.drawString(getStringPM25(), tft.width() / 2, tft.height() / 2 - 24);
+    tft.setTextSize(7);
+    tft.drawString(getStringPM25(), tft.width() / 2, tft.height() / 2 - 30);
     tft.setTextSize(1);
-    tft.drawString("PM2.5", tft.width() / 2 + 75, tft.height() / 2 - 4);
+    tft.drawString("PM2.5", tft.width() / 2 + 75, tft.height() / 2 - 13);
+    tft.setTextSize(2);
+    tft.setTextDatum(BL_DATUM);
+    String out = "PM1:" + getStringPM1() + " PM10:" + getStringPM10();
+    tft.drawString(out, 0, tft.height() - 54);
 #endif
 }
 

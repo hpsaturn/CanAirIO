@@ -1,3 +1,6 @@
+#include <Arduino.h>
+#include <Wire.h>
+#include <SPI.h>
 #include <sleep.hpp>
 #include <gui.hpp>
 #include <buttons.hpp>

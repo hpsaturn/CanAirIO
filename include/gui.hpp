@@ -1,6 +1,4 @@
 #include <TFT_eSPI.h>
-#include <SPI.h>
-#include <Wire.h>
 #include <battery.hpp>
 #include <bme680.hpp>
 #include <pmsensor.hpp>
