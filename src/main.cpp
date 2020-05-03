@@ -17,27 +17,28 @@ bool lowPowerMode;
 void setup() {
     Serial.begin(115200);
     Serial.println("\n-->[SETUP] init:");
+    cfg.init("canairio");
     displayInit();
     showMainPage();
-    cfg.init("canairio");
+    wifiInit();
     pmsensorInit();
     btnInit();
     setupBattery();
     setupBattADC();
     bmeInit();
     bleServerInit();
-    wifiInit();
     influxDbInit();
     apiInit();
 }
 
 void loop() {
-    bmeLoop();
-    pmsensorLoop();
+    bmeLoop();                      // BME680 sensor loop
+    pmsensorLoop(bleIsConnected()); // PM Sensor, if phone is connected
+                                    // the capture interval is minor
     guiLoop();
 
-    bleLoop();       // notify data to connected devices
-    wifiLoop();      // check wifi and reconnect it
+    bleLoop();       // notify data to phone BLE device
+    wifiLoop();      // check wifi or reconnect
     apiLoop();       // CanAir.io API publication
     influxDbLoop();  // influxDB publication
     otaLoop();       // check for firmware updates

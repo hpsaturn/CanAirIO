@@ -1,5 +1,4 @@
 #include <hpma115S0.h>
-
 #include "hal.hpp"
 
 #define SENSOR_INTERVAL 1000 * 60 * 3  // 3 minutes => more is better for the battery
@@ -9,7 +8,7 @@
 void pmsensorInit();
 void pmsensorEnable(bool enable);
 void pmsensorRead();
-void pmsensorLoop();
+void pmsensorLoop(bool isBleConnected);
 bool pmsensorDataReady();
 
 String getStringPM1();

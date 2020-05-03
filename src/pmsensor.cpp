@@ -76,21 +76,23 @@ void pmsensorRead() {
         _wrongDataState();
 }
 
-void pmsensorLoop() {
+void pmsensorLoop(bool isBleConnected) {
     static uint64_t timeStamp = 0;
     if ((millis() - timeStamp > 1000)) {
         timeStamp = millis();
         static uint64_t pmTimeStamp = 0;
-        if ((millis() - pmTimeStamp > SENSOR_INTERVAL)) {
+        int turnon_interval = SENSOR_INTERVAL;
+        if (isBleConnected) turnon_interval = turnon_interval / 3; 
+        if ((millis() - pmTimeStamp > turnon_interval)) {
             pmsensorEnable(true);
-            if ((millis() - pmTimeStamp) > (SENSOR_INTERVAL + SENSOR_SAMPLE)) {
+            if ((millis() - pmTimeStamp) > (turnon_interval + SENSOR_SAMPLE)) {
                 pmsensorRead();
                 pmTimeStamp = millis();
                 pmsensorEnable(false);
                 copyLastVars();
                 scount = 0;
                 Serial.println("-->[PMSensor] disable.");
-            } else if ((millis() - pmTimeStamp > SENSOR_INTERVAL + SENSOR_SAMPLE / 2)) {
+            } else if ((millis() - pmTimeStamp > turnon_interval + SENSOR_SAMPLE / 2)) {
                 pmsensorRead();
             } else {
                 Serial.println("-->[PMSensor] waiting for stable measure..");
