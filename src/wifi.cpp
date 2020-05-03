@@ -116,36 +116,39 @@ void apiInit(){
 }
 
 void apiLoop() {
-  if (wifiOn && cfg.isApiEnable() && apiIsConfigured() && resetvar != 0) {
-    Serial.print("-->[API] writing to ");
-    Serial.print(""+String(api.ip)+"..");
-    bool status = api.write(
-        getPM1(),
-        getPM25(),
-        getPM10(),
-        getHumidity(),
-        getTemperature(),
-        cfg.lat,
-        cfg.lon,
-        cfg.alt,
-        cfg.spd,
-        cfg.stime);
-    int code = api.getResponse();
-    if(status) {
-      Serial.println("done. ["+String(code)+"]");
-      statusOn(bit_cloud);
-      dataSendToggle = true;
+    static uint64_t timeStamp = 0;
+    if (millis() - timeStamp > PUBLISH_INTERVAL * 1000) {
+        timeStamp = millis();
+        if (wifiOn && cfg.isApiEnable() && apiIsConfigured() && resetvar != 0) {
+            Serial.print("-->[API] writing to ");
+            Serial.print("" + String(api.ip) + "..");
+            bool status = api.write(
+                getPM1(),
+                getPM25(),
+                getPM10(),
+                getHumidity(),
+                getTemperature(),
+                cfg.lat,
+                cfg.lon,
+                cfg.alt,
+                cfg.spd,
+                cfg.stime);
+            int code = api.getResponse();
+            if (status) {
+                Serial.println("done. [" + String(code) + "]");
+                statusOn(bit_cloud);
+                dataSendToggle = true;
+            } else {
+                Serial.println("fail! [" + String(code) + "]");
+                statusOff(bit_cloud);
+                setErrorCode(ecode_api_write_fail);
+                if (code == -1) {
+                    Serial.println("-->[E][API] publish error (-1)");
+                    delay(100);
+                }
+            }
+        }
     }
-    else {
-      Serial.println("fail! ["+String(code)+"]");
-      statusOff(bit_cloud);
-      setErrorCode(ecode_api_write_fail);
-      if (code == -1) {
-        Serial.println("-->[E][API] publish error (-1)");
-        delay(1000);
-      }
-    }
-  }
 }
 
 /******************************************************************************
