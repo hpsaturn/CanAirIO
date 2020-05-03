@@ -107,27 +107,25 @@ void bleServerInit() {
 
 void bleLoop() {
     static uint64_t timeStamp = 0;
-    if (millis() - timeStamp > 5000) {
+    // notify changed value
+    if (deviceConnected && pmsensorDataReady() && (millis() - timeStamp > 5000)) {  // each 5 secs
+        Serial.println("-->[BLE] sending notification..");
         timeStamp = millis();
-        // notify changed value
-        if (deviceConnected && pmsensorDataReady()) {  // v25 test for get each ~5 sec aprox
-            Serial.println("-->[BLE] sending notification..");
-            pCharactData->setValue(getNotificationData().c_str());  // small payload for notification
-            pCharactData->notify();
-            pCharactData->setValue(getSensorData().c_str());  // load big payload for possible read
-        }
-        // disconnecting
-        if (!deviceConnected && oldDeviceConnected) {
-            delay(100);                   // give the bluetooth stack the chance to get things ready
-            pServer->startAdvertising();  // restart advertising
-            Serial.println("-->[BLE] start advertising");
-            oldDeviceConnected = deviceConnected;
-        }
-        // connecting
-        if (deviceConnected && !oldDeviceConnected) {
-            // do stuff here on connecting
-            oldDeviceConnected = deviceConnected;
-        }
+        pCharactData->setValue(getNotificationData().c_str());  // small payload for notification
+        pCharactData->notify();
+        pCharactData->setValue(getSensorData().c_str());  // load big payload for possible read
+    }
+    // disconnecting
+    if (!deviceConnected && oldDeviceConnected) {
+        delay(100);                   // give the bluetooth stack the chance to get things ready
+        pServer->startAdvertising();  // restart advertising
+        Serial.println("-->[BLE] start advertising");
+        oldDeviceConnected = deviceConnected;
+    }
+    // connecting
+    if (deviceConnected && !oldDeviceConnected) {
+        // do stuff here on connecting
+        oldDeviceConnected = deviceConnected;
     }
 }
 
