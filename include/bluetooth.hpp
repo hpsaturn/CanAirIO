@@ -15,3 +15,4 @@
 
 void bleLoop();
 void bleServerInit();
+bool bleIsConnected();

@@ -32,7 +32,6 @@ void setup() {
 }
 
 void loop() {
-
     bmeLoop();
     pmsensorLoop();
     guiLoop();
@@ -41,8 +40,8 @@ void loop() {
     wifiLoop();      // check wifi and reconnect it
     apiLoop();       // CanAir.io API publication
     influxDbLoop();  // influxDB publication
-    // statusLoop();    // update sensor status GUI
     otaLoop();       // check for firmware updates
-    // delay(500);
-    // espShallowSleep(1000);
+    // statusLoop();    // update sensor status GUI
+
+    if (!bleIsConnected()) espShallowSleep(5000);  // save battery
 }

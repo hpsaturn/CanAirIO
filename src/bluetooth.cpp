@@ -6,6 +6,10 @@ BLECharacteristic* pCharactConfig = NULL;
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
 
+/*************************************************************************
+*   B L U E T O O T H   P A Y L O A D
+*************************************************************************/
+
 String getNotificationData() {
     StaticJsonDocument<40> doc;
     doc["P25"] = getPM25();  // notification capacity is reduced, only main value
@@ -27,6 +31,10 @@ String getSensorData() {
     serializeJson(doc, json);
     return json;
 }
+
+/*************************************************************************
+*   B L U E T O O T H   M E T H O D S
+*************************************************************************/
 
 class MyServerCallbacks : public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
@@ -101,7 +109,6 @@ void bleLoop() {
     static uint64_t timeStamp = 0;
     if (millis() - timeStamp > 5000) {
         timeStamp = millis();
-
         // notify changed value
         if (deviceConnected && pmsensorDataReady()) {  // v25 test for get each ~5 sec aprox
             Serial.println("-->[BLE] sending notification..");
@@ -111,7 +118,7 @@ void bleLoop() {
         }
         // disconnecting
         if (!deviceConnected && oldDeviceConnected) {
-            delay(500);                   // give the bluetooth stack the chance to get things ready
+            delay(100);                   // give the bluetooth stack the chance to get things ready
             pServer->startAdvertising();  // restart advertising
             Serial.println("-->[BLE] start advertising");
             oldDeviceConnected = deviceConnected;
@@ -122,4 +129,8 @@ void bleLoop() {
             oldDeviceConnected = deviceConnected;
         }
     }
+}
+
+bool bleIsConnected(){
+    return deviceConnected;
 }
