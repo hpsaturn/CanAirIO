@@ -1,6 +1,7 @@
+#include <Adafruit_BME680.h>
 #include <Adafruit_Sensor.h>
-#include "Adafruit_BME680.h"
 
+#include <hal.hpp>
 #define SEALEVELPRESSURE_HPA (1013.25)
 
 void bmeInit();
@@ -17,4 +18,3 @@ String getFormatPress();
 String getFormatHum();
 String getFormatGas();
 String getFormatAlt();
-

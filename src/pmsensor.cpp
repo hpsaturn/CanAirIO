@@ -30,12 +30,12 @@ void pmsensorEnable(bool enable) {
         digitalWrite(PMS_EN, LOW);
 }
 
-void copyLastVars(){
-    pm1=tpm1;
-    pm10=tpm10;
-    pm25=tpm25;
+void copyLastVars() {
+    pm1 = tpm1;
+    pm10 = tpm10;
+    pm25 = tpm25;
     Serial.print("-->[PMSensor] Final data: ==> ");
-    Serial.printf("[PM1:%03d][PM2.5:%03d][PM10:%03d]\n",pm1,pm25,pm10);
+    Serial.printf("[PM1:%03d][PM2.5:%03d][PM10:%03d]\n", pm1, pm25, pm10);
 }
 
 void _wrongDataState() {
@@ -67,11 +67,11 @@ void pmsensorRead() {
         delay(500);  // waiting for sensor..
     }
     if (txtMsg[0] == 02) {
-        tpm1  = txtMsg[2] * 256 + byte(txtMsg[1]);
+        tpm1 = txtMsg[2] * 256 + byte(txtMsg[1]);
         tpm25 = txtMsg[6] * 256 + byte(txtMsg[5]);
         tpm10 = txtMsg[10] * 256 + byte(txtMsg[9]);
         Serial.print("-->[PMSensor] done! RAW data: ==> ");
-        Serial.printf("[S%02d][PM1:%03d][PM2.5:%03d][PM10:%03d]\n",++scount,tpm1,tpm25,tpm10);
+        Serial.printf("[S%02d][PM1:%03d][PM2.5:%03d][PM10:%03d]\n", ++scount, tpm1, tpm25, tpm10);
     } else
         _wrongDataState();
 }
