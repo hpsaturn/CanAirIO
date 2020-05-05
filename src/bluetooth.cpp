@@ -38,15 +38,15 @@ String getSensorData() {
 
 class MyServerCallbacks : public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
-        Serial.println("-->[BLE] onConnect");
-        // statusOn(bit_paired);
         deviceConnected = true;
+        statusOn(bit_paired);
+        Serial.println("-->[BLE] onConnect");
     };
 
     void onDisconnect(BLEServer* pServer) {
-        Serial.println("-->[BLE] onDisconnect");
-        // statusOff(bit_paired);
         deviceConnected = false;
+        statusOff(bit_paired);
+        Serial.println("-->[BLE] onDisconnect");
     };
 };  // BLEServerCallbacks
 
@@ -117,7 +117,7 @@ void bleLoop() {
     }
     // disconnecting
     if (!deviceConnected && oldDeviceConnected) {
-        delay(100);                   // give the bluetooth stack the chance to get things ready
+        delay(250);                   // give the bluetooth stack the chance to get things ready
         pServer->startAdvertising();  // restart advertising
         Serial.println("-->[BLE] start advertising");
         oldDeviceConnected = deviceConnected;
