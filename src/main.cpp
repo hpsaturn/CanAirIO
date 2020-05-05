@@ -17,32 +17,31 @@ bool lowPowerMode;
 void setup() {
     Serial.begin(115200);
     Serial.println("\n-->[SETUP] init:");
-    cfg.init("canairio");
-    displayInit();
-    showMainPage();
-    wifiInit();
-    pmsensorInit();
-    btnInit();
-    setupBattery();
-    setupBattADC();
-    bmeInit();
-    bleServerInit();
-    influxDbInit();
-    apiInit();
+    cfg.init("canairio");     // init all preferences.
+    displayInit();            // tft connection and settings.
+    showMainPage();           // gui: main page (sensor values)
+    bleServerInit();          // BLE GATT server init and advertising.
+    pmsensorInit();           // Panasonic PM sensor initialization.
+    bmeInit();                // BME680 multi sensor initialization.
+    btnInit();                // Buttons interrupts.
+    setupBattery();           // init battery ADC.
+    setupBattADC();           // confit battery ADC.
+    wifiInit();               // re-connection to last wifi network.
+    influxDbInit();           // influxdb clouds.
+    apiInit();                // provisional API.
 }
 
 void loop() {
-    bmeLoop();                      // BME680 sensor loop
-    pmsensorLoop(bleIsConnected()); // PM Sensor, if phone is connected
-                                    // the capture interval is minor
-    guiLoop();
+    bmeLoop();                      // the BME680 sensor loop.
+    pmsensorLoop(bleIsConnected()); // if phone is connected, the turnon
+                                    // sensor interval is minor.
+    wifiLoop();                     // check wifi or reconnect it.
+    bleLoop();                      // notify data to phone or BLE device
+    apiLoop();                      // CanAir.io API publication.
+    influxDbLoop();                 // influxDB publication.
+    otaLoop();                      // check for firmware updates.
+    guiLoop();                      // gui ttf refresh methods.
 
-    bleLoop();       // notify data to phone BLE device
-    wifiLoop();      // check wifi or reconnect
-    apiLoop();       // CanAir.io API publication
-    influxDbLoop();  // influxDB publication
-    otaLoop();       // check for firmware updates
-    // statusLoop();    // update sensor status GUI
-
-    if (!bleIsConnected()) espShallowSleep(5000);  // save battery
+    // save battery after phone disconnected:
+    if (!bleIsConnected()) espShallowSleep(5000);  
 }

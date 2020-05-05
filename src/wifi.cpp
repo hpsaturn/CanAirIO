@@ -4,6 +4,7 @@ bool dataSendToggle;
 bool wifiOn;
 unsigned int resetvar = 0;
 int triggerSaveIcon = 0;
+uint32_t ifxdbwcount;
 
 InfluxArduino influx;
 CanAirIoApi api(false);
@@ -71,7 +72,8 @@ void influxDbLoop() {
         timeStamp = millis();
         if (pmsensorDataReady() && cfg.isIfxEnable() && influxDbIsConfigured()) {
             int ifx_retry = 0;
-            Serial.print("-->[INFLUXDB] writing to ");
+            Serial.printf("-->[INFLUXDB][%s]\n",cfg.dname.c_str());
+            Serial.printf("-->[INFLUXDB][%010d] writing to ",ifxdbwcount++);
             Serial.print("" + cfg.ifxip + "..");
             while (!influxDbWrite() && (ifx_retry++ < IFX_RETRY_CONNECTION)) {
                 Serial.print(".");
