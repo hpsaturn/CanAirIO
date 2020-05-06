@@ -61,8 +61,8 @@ void bmeLoop() {
             Serial.println(F("..Failed to complete reading :("));
             return;
         }
-        printValues();
         altitude = bme.readAltitude(SEALEVELPRESSURE_HPA);      // it take some time (we save it)
+        printValues();
     }
 }
 
