@@ -25,14 +25,14 @@ void showBatteryStatus() {
 
 void showBME680Values() {
 #ifdef ENABLE_TFT
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextSize(1);
+    tft.drawString("G:" + getFormatGas(), 0, tft.height() / 2 + 7);
+    tft.drawString("A:" + getFormatAlt(), tft.width() / 2, tft.height() / 2 + 7);
+    tft.drawString("P:" + getFormatPress(), tft.width(), tft.height() / 2 + 7);
     tft.setTextSize(2);
-    tft.setTextDatum(BL_DATUM);
-    String outln1 = "T:" + getFormatTemp() + " HR:" + getFormatHum();
-    tft.drawString(outln1, 0, tft.height() - 36);
-    String outln2 = "P:" + getFormatPress() + " A:" + getFormatAlt();
-    tft.drawString(outln2, 0, tft.height() - 18);
-    String outln3 = "GAS:" + getFormatGas();
-    tft.drawString(outln3, 0, tft.height());
+    tft.drawString("T:" + getFormatTemp(), 0, tft.height() / 2 + 24);
+    tft.drawString("H:" + getFormatHum(), tft.width(), tft.height() / 2 + 24);
 #endif
 }
 
@@ -40,13 +40,12 @@ void showPMSValues() {
 #ifdef ENABLE_TFT
     tft.setTextDatum(MC_DATUM);
     tft.setTextSize(7);
-    tft.drawString(getStringPM25(), tft.width() / 2, tft.height() / 2 - 30);
+    tft.drawString(getStringPM25(), tft.width() / 2 + 15, tft.height() / 2 - 28);
     tft.setTextSize(1);
-    tft.drawString("PM2.5", tft.width() / 2 + 75, tft.height() / 2 - 13);
-    tft.setTextSize(2);
-    tft.setTextDatum(BL_DATUM);
-    String out = "PM1:" + getStringPM1() + " PM10:" + getStringPM10();
-    tft.drawString(out, 0, tft.height() - 54);
+    tft.drawString("PM2.5", tft.width(), tft.height() / 2 - 13);
+    tft.drawString("PM1/PM10:", 0, tft.height() / 2 - 39);
+    tft.drawString(getStringPM1(), 0, tft.height() / 2 - 26);
+    tft.drawString(getStringPM10(), 0, tft.height() / 2 - 13);
 #endif
 }
 
