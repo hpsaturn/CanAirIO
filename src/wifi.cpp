@@ -2,8 +2,6 @@
 
 bool dataSendToggle;
 bool wifiOn;
-unsigned int resetvar = 0;
-int triggerSaveIcon = 0;
 uint32_t ifxdbwcount;
 
 InfluxArduino influx;
@@ -70,7 +68,7 @@ void influxDbLoop() {
     static uint64_t timeStamp = 0;
     if (millis() - timeStamp > PUBLISH_INTERVAL * 1000) {
         timeStamp = millis();
-        if (pmsensorDataReady() && cfg.isIfxEnable() && influxDbIsConfigured()) {
+        if (pmsensorDataReady() && wifiOn && cfg.wifiEnable && cfg.isIfxEnable() && influxDbIsConfigured()) {
             int ifx_retry = 0;
             Serial.printf("-->[INFLUXDB][%s]\n",cfg.dname.c_str());
             Serial.printf("-->[INFLUXDB][%010d] writing to ",ifxdbwcount++);
@@ -86,7 +84,7 @@ void influxDbLoop() {
                 wifiRestart();
             } else {
                 Serial.println("done. [" + String(influx.getResponse()) + "]");
-                delay(100);
+                delay(200);  // --> because the ESP go to then to light sleep, not remove it!
                 statusOn(bit_cloud);
                 dataSendToggle = true;
             }
@@ -121,7 +119,7 @@ void apiLoop() {
     static uint64_t timeStamp = 0;
     if (millis() - timeStamp > PUBLISH_INTERVAL * 1000) {
         timeStamp = millis();
-        if (wifiOn && cfg.isApiEnable() && apiIsConfigured() && resetvar != 0) {
+        if (pmsensorDataReady() && wifiOn && cfg.wifiEnable && cfg.isApiEnable() && apiIsConfigured()) {
             Serial.print("-->[API] writing to ");
             Serial.print("" + String(api.ip) + "..");
             bool status = api.write(
