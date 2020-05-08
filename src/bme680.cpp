@@ -91,7 +91,7 @@ String getFormatTemp() {
 }
 
 String getFormatPress() {
-    return String(bme.pressure / 100.0) + "hPa";
+    return String(bme.pressure / 100.0) + " hPa";
 }
 
 String getFormatHum() {
@@ -99,9 +99,9 @@ String getFormatHum() {
 }
 
 String getFormatGas() {
-    return String(bme.gas_resistance / 1000.0) + "KOhms";
+    return String(bme.gas_resistance / 1000.0) + " KHs";
 }
 
 String getFormatAlt() {
-    return String((int)altitude) + "m";
+    return String(altitude) + "m";
 }
