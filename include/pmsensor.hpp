@@ -10,6 +10,7 @@ void pmsensorEnable(bool enable);
 void pmsensorRead();
 void pmsensorLoop(bool isBleConnected);
 bool pmsensorDataReady();
+bool pmsensorIsEnable();
 
 String getStringPM1();
 String getStringPM25();

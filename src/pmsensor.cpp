@@ -15,6 +15,7 @@ int scount = 0;
 bool isInitSetup = true;
 int initSetupCount = 0;
 bool dataReady = false;
+bool isPmsensorEnable=false;
 
 void pmsensorInit() {
     Serial.println("-->[PMSensor] Setup Panasonic PM sensor..");
@@ -28,6 +29,7 @@ void pmsensorEnable(bool enable) {
         digitalWrite(PMS_EN, HIGH);
     else
         digitalWrite(PMS_EN, LOW);
+    isPmsensorEnable=enable;
 }
 
 void copyLastVars() {
@@ -142,4 +144,8 @@ String getStringPM10() {
     char output[5];
     sprintf(output, "%03d", getPM10());
     return String(output);
+}
+
+bool pmsensorIsEnable() {
+    return isPmsensorEnable;
 }

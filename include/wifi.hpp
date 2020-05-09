@@ -7,7 +7,7 @@
 #include <InfluxArduino.hpp>
 #include <bme680.hpp>
 #include <pmsensor.hpp>
-#include <status.hpp>
+#include <gui.hpp>
 
 #define PUBLISH_INTERVAL 30  // publish to cloud each 30 seconds
 #define WIFI_RETRY_CONNECTION 20

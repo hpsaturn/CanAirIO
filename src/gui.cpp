@@ -4,10 +4,16 @@
 TFT_eSPI tft = TFT_eSPI(135, 240);  // Invoke custom library
 #endif
 
+bool icWifiOn, icBTPair, icDataOn, icFanOn;
+uint32_t uptime;
+
 void showMainPage(){
+#ifdef ENABLE_TFT
     showBatteryStatus();
     showPMSValues();
     showBME680Values();
+    showStatus();
+#endif
 }
 
 void showBatteryStatus() {
@@ -18,10 +24,43 @@ void showBatteryStatus() {
     tft.fillScreen(TFT_BLACK);
     tft.setTextSize(1);
     tft.drawString(battery, 0, 0);
+    tft.setTextDatum(TC_DATUM);
+    tft.drawString(String(uptime), tft.width()/2 + 5, 0);
     tft.setTextDatum(TR_DATUM);
     tft.drawString(voltage, tft.width(), 0);
 #endif
 }
+
+void showStatus() {
+#ifdef ENABLE_TFT
+    icFanOn = pmsensorIsEnable();
+    tft.setTextDatum(BC_DATUM);
+    tft.setTextSize(2);
+    char output[30];
+    sprintf(output, "%s %s %s %s", icBTPair ? "BT" : "", icWifiOn ? "WiFi" : "", icFanOn ? "Fan" : "", icDataOn ? "Up" : "");
+    tft.drawLine(0, tft.height() - 19, tft.width(), tft.height() - 19, TFT_YELLOW);
+    tft.drawRect(0,tft.height()-18,tft.width(),tft.height(),TFT_BLACK);  // clear status line
+    tft.drawString(String(output), tft.width() / 2, tft.height());
+#endif
+}
+
+void showUptime(uint32_t u) {
+    uptime = u;
+}
+
+void showBTIcon(bool isPaired) {
+    icBTPair = isPaired;
+}
+
+void showWifiIcon(bool isWifiOn) {
+    icWifiOn = isWifiOn;
+}
+
+void showDataIcon(bool isDataOn) {
+    icDataOn = isDataOn;
+    showStatus();
+}
+
 
 void showBME680Values() {
 #ifdef ENABLE_TFT
@@ -97,6 +136,7 @@ void displayInit() {
 #ifdef ENABLE_TFT
     tft.init();
     tft.setRotation(1);
+    tft.setSwapBytes(true);
     tft.fillScreen(TFT_BLACK);
     tft.setTextColor(TFT_GREEN);
     tft.setCursor(0, 0);
@@ -110,9 +150,10 @@ void displayInit() {
 }
 
 void guiLoop() {
-    static uint64_t timeStamp = 0;
-    if (millis() - timeStamp > 3000) {
-        timeStamp = millis();
+    static uint32_t guiTimeStamp = 0; 
+    if (millis() - guiTimeStamp > 5000) {
+        guiTimeStamp = millis();
         showMainPage();
     }
 }
+

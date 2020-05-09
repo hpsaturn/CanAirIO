@@ -79,17 +79,18 @@ void influxDbLoop() {
             }
             if (ifx_retry > IFX_RETRY_CONNECTION) {
                 Serial.println("failed!\n-->[E][INFLUXDB] write error, try wifi restart..");
-                statusOff(bit_cloud);
-                setErrorCode(ecode_ifdb_write_fail);
                 wifiRestart();
             } else {
                 Serial.println("done. [" + String(influx.getResponse()) + "]");
                 delay(200);  // --> because the ESP go to then to light sleep, not remove it!
-                statusOn(bit_cloud);
+                showDataIcon(true);
+                showUptime(ifxdbwcount);
                 dataSendToggle = true;
             }
         }
     }
+    else 
+        showDataIcon(false);
 }
 
 /******************************************************************************
@@ -136,12 +137,9 @@ void apiLoop() {
             int code = api.getResponse();
             if (status) {
                 Serial.println("done. [" + String(code) + "]");
-                statusOn(bit_cloud);
                 dataSendToggle = true;
             } else {
                 Serial.println("fail! [" + String(code) + "]");
-                statusOff(bit_cloud);
-                setErrorCode(ecode_api_write_fail);
                 if (code == -1) {
                     Serial.println("-->[E][API] publish error (-1)");
                     delay(100);
@@ -185,12 +183,7 @@ void otaInit() {
 
 bool wifiCheck() {
     wifiOn = WiFi.isConnected();
-    if (wifiOn)
-        statusOn(bit_wan);  // TODO: We need validate internet connection
-    else {
-        statusOff(bit_cloud);
-        statusOff(bit_wan);
-    }
+    showWifiIcon(wifiOn);
     return wifiOn;
 }
 
@@ -211,7 +204,6 @@ void wifiConnect(const char* ssid, const char* pass) {
         otaInit();
     } else {
         Serial.println("fail!\n-->[E][WIFI] disconnected!");
-        setErrorCode(ecode_wifi_fail);
     }
 }
 
@@ -227,6 +219,7 @@ void wifiStop() {
         WiFi.disconnect(true);
         wifiOn = false;
         delay(1000);
+        wifiCheck();
     }
 }
 
@@ -236,8 +229,10 @@ void wifiRestart() {
 }
 
 void wifiLoop() {
-    if (pmsensorDataReady() && cfg.wifiEnable && cfg.ssid.length() > 0 && !wifiCheck()) {
-        wifiConnect(cfg.ssid.c_str(), cfg.pass.c_str());
+    static uint64_t wifiTimeStamp = 0;
+    if (millis() - wifiTimeStamp > 30000 && cfg.wifiEnable && cfg.ssid.length() > 0 && !wifiCheck()) {
+        wifiTimeStamp = millis();
+        wifiInit();
         influxDbInit();
         apiInit();
     }
