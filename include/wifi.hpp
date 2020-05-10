@@ -10,8 +10,8 @@
 #include <gui.hpp>
 
 #define PUBLISH_INTERVAL 30  // publish to cloud each 30 seconds
-#define WIFI_RETRY_CONNECTION 20
-#define IFX_RETRY_CONNECTION 2
+#define WIFI_RETRY_CONNECTION 5
+#define IFX_RETRY_CONNECTION 5
 
 void otaLoop();
 void otaInit();

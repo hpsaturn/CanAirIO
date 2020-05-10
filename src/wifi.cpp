@@ -230,7 +230,7 @@ void wifiRestart() {
 
 void wifiLoop() {
     static uint64_t wifiTimeStamp = 0;
-    if (millis() - wifiTimeStamp > 30000 && cfg.wifiEnable && cfg.ssid.length() > 0 && !wifiCheck()) {
+    if (millis() - wifiTimeStamp > 5000  && cfg.wifiEnable && cfg.ssid.length() > 0 && !wifiCheck()) {
         wifiTimeStamp = millis();
         wifiInit();
         influxDbInit();
