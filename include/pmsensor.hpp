@@ -1,7 +1,7 @@
 #include <hpma115S0.h>
 #include "hal.hpp"
 
-#define SENSOR_INTERVAL 1000 * 60 * 3  // 3 minutes => more is better for the battery
+#define SENSOR_INTERVAL 1000 * 60 * 5  // 3 minutes => more is better for the battery
 #define SENSOR_SAMPLE 1000 * 35        // 30 seconds => less is better for the battery
 #define SENSOR_RETRY 1000              // Sensor read retry
 
