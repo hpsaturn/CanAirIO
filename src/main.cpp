@@ -27,6 +27,8 @@ void setup() {
     setupBattery();           // init battery ADC.
     setupBattADC();           // confit battery ADC.
     wifiInit();               // re-connection to last wifi network.
+    influxDbInit();           // init influxdb connection
+    apiInit();                // init API connection
 }
 
 void loop() {
