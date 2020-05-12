@@ -165,7 +165,7 @@ void displayInit() {
 }
 
 void guiLoop() {
-    static uint32_t guiTimeStamp = 0; 
+    static uint_fast64_t guiTimeStamp = 0; 
     if (millis() - guiTimeStamp > 5000) {
         guiTimeStamp = millis();
         showMainPage();

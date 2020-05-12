@@ -102,7 +102,7 @@ void bleServerInit() {
 }
 
 void bleLoop() {
-    static uint64_t bleTimeStamp = 0;
+    static uint_fast64_t bleTimeStamp = 0;
     // notify changed value
     if (deviceConnected && pmsensorDataReady() && (millis() - bleTimeStamp > 5000)) {  // each 5 secs
         Serial.println("-->[BLE] sending notification..");

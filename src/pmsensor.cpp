@@ -76,7 +76,7 @@ void pmsensorRead() {
 }
 
 void pmsensorLoop(bool isBleConnected) {
-    static uint64_t pmLoopTimeStamp = 0;            // timestamp for loop check
+    static uint_fast64_t pmLoopTimeStamp = 0;            // timestamp for loop check
     if ((millis() - pmLoopTimeStamp > 1000)) {
         pmLoopTimeStamp = millis();
         static uint64_t pmTimeStamp = 0;            // timestamp for interval and sensor sample time

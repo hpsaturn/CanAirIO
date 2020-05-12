@@ -47,7 +47,7 @@ void printValues() {
 }
 
 void bmeLoop() {
-    static uint64_t timeStamp = 0;
+    static uint_fast64_t timeStamp = 0;
     if (millis() - timeStamp > 5000) {
         timeStamp = millis();
         // Tell BME680 to begin measurement.

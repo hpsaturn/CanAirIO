@@ -65,7 +65,7 @@ bool influxDbWrite() {
 }
 
 void influxDbLoop() {
-    static uint64_t timeStamp = 0;
+    static uint_fast64_t timeStamp = 0;
     if (millis() - timeStamp > PUBLISH_INTERVAL * 1000) {
         timeStamp = millis();
         if (pmsensorDataReady() && wifiOn && cfg.wifiEnable && cfg.isIfxEnable() && influxDbIsConfigured()) {
@@ -117,7 +117,7 @@ void apiInit() {
 }
 
 void apiLoop() {
-    static uint64_t timeStamp = 0;
+    static uint_fast64_t timeStamp = 0;
     if (millis() - timeStamp > PUBLISH_INTERVAL * 1000) {
         timeStamp = millis();
         if (pmsensorDataReady() && wifiOn && cfg.wifiEnable && cfg.isApiEnable() && apiIsConfigured()) {
@@ -229,7 +229,7 @@ void wifiRestart() {
 }
 
 void wifiLoop() {
-    static uint64_t wifiTimeStamp = 0;
+    static uint_least64_t wifiTimeStamp = 0;
     if (millis() - wifiTimeStamp > 5000  && cfg.wifiEnable && cfg.ssid.length() > 0 && !wifiCheck()) {
         wifiTimeStamp = millis();
         wifiInit();
