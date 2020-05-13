@@ -1,4 +1,5 @@
 #include <gui.hpp>
+#include <icons.h>
 
 #ifdef ENABLE_TFT
 TFT_eSPI tft = TFT_eSPI(135, 240);  // Invoke custom library
@@ -6,6 +7,7 @@ TFT_eSPI tft = TFT_eSPI(135, 240);  // Invoke custom library
 
 bool icWifiOn, icBTPair, icDataOn, icFanOn;
 uint32_t uptime;
+bool fanState;
 
 void showMainPage(){
 #ifdef ENABLE_TFT
@@ -43,15 +45,35 @@ void showBatteryStatus() {
 #endif
 }
 
+void drawBluetoothIcon () {
+    tft.drawBitmap(0, tft.height() - 18, iconBluetoothPaired, 12, 16, TFT_BLACK, TFT_BLUE);
+}
+
+void drawWifiHighIcon () {
+    tft.drawBitmap(13, tft.height() - 18, iconWifiHigh, 12, 16, TFT_BLACK, TFT_BLUE);
+}
+
+void drawFanIcon () {
+    tft.drawBitmap(26, tft.height() - 18, fanState ? iconFanState0 : iconFanState1, 12, 16, TFT_BLACK, TFT_BROWN);
+    fanState = !fanState;
+}
+
+void drawDataIcon () {
+    tft.drawBitmap(40, tft.height() - 18, iconArrows, 12, 16, TFT_BLACK, TFT_LIGHTGREY);
+}
+
 void showStatus() {
     char output[30];
     icFanOn = pmsensorIsEnable();
-    sprintf(output, "%s %s %s %s", icBTPair ? "BT" : "", icWifiOn ? "WiFi" : "", icFanOn ? "Fan" : "", icDataOn ? "Up" : "");
+    sprintf(output, "%s", icFanOn ? "Sensing" : "");
 #ifdef ENABLE_TFT
+    if (icDataOn) drawDataIcon();
+    if (icFanOn) drawFanIcon();
+    if (icBTPair) drawBluetoothIcon();
+    if (icWifiOn) drawWifiHighIcon();
     tft.setTextDatum(BC_DATUM);
     tft.setTextSize(2);
     tft.drawLine(0, tft.height() - 19, tft.width(), tft.height() - 19, TFT_YELLOW);
-    tft.drawRect(0,tft.height()-18,tft.width(),tft.height(),TFT_BLACK);  // clear status line
     tft.drawString(output, tft.width() / 2, tft.height());
 #endif
 }
