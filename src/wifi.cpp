@@ -1,6 +1,5 @@
 #include <wifi.hpp>
 
-bool dataSendToggle;
 bool wifiOn;
 uint32_t ifxdbwcount;
 
@@ -70,8 +69,8 @@ void influxDbLoop() {
         timeStamp = millis();
         if (pmsensorDataReady() && wifiOn && cfg.wifiEnable && cfg.isIfxEnable() && influxDbIsConfigured()) {
             int ifx_retry = 0;
-            Serial.printf("-->[INFLUXDB][%s]\n",cfg.dname.c_str());
-            Serial.printf("-->[INFLUXDB][%010d] writing to ",ifxdbwcount++);
+            Serial.printf("-->[INFLUXDB][%s]\n", cfg.dname.c_str());
+            Serial.printf("-->[INFLUXDB][%010d] writing to ", ifxdbwcount++);
             Serial.print("" + cfg.ifxip + "..");
             while (!influxDbWrite() && (ifx_retry++ < IFX_RETRY_CONNECTION)) {
                 Serial.print(".");
@@ -82,14 +81,12 @@ void influxDbLoop() {
                 wifiRestart();
             } else {
                 Serial.println("done. [" + String(influx.getResponse()) + "]");
-                delay(200);  // --> because the ESP go to then to light sleep, not remove it!
                 showDataIcon(true);
                 showUptime(ifxdbwcount);
-                dataSendToggle = true;
+                delay(200);  // --> because the ESP go to then to light sleep, not remove it!
             }
         }
-    }
-    else 
+    } else
         showDataIcon(false);
 }
 
@@ -137,7 +134,6 @@ void apiLoop() {
             int code = api.getResponse();
             if (status) {
                 Serial.println("done. [" + String(code) + "]");
-                dataSendToggle = true;
             } else {
                 Serial.println("fail! [" + String(code) + "]");
                 if (code == -1) {
