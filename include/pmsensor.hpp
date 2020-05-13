@@ -6,7 +6,6 @@
 #define SENSOR_RETRY 1000              // Sensor read retry
 
 void pmsensorInit();
-void pmsensorEnable(bool enable);
 void pmsensorRead();
 void pmsensorLoop(bool isBleConnected);
 bool pmsensorDataReady();
