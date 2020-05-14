@@ -6,7 +6,7 @@
 #include <BLE2902.h>
 #include <pmsensor.hpp>
 #include <wifi.hpp>
-#include <status.hpp>
+#include <gui.hpp>
 #include <hal.hpp>
 
 #define SERVICE_UUID        "c8d1d262-861f-4082-947e-f383a259aaf3"

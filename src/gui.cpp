@@ -1,27 +1,99 @@
 #include <gui.hpp>
+#include <icons.h>
 
 #ifdef ENABLE_TFT
 TFT_eSPI tft = TFT_eSPI(135, 240);  // Invoke custom library
 #endif
 
+bool icWifiOn, icBTPair, icDataOn, icFanOn;
+uint32_t uptime;
+bool fanState;
+
 void showMainPage(){
+#ifdef ENABLE_TFT
     showBatteryStatus();
     showPMSValues();
     showBME680Values();
+    showStatus();
+#endif
 }
 
 void showBatteryStatus() {
 #ifdef ENABLE_TFT
-    float volts = battGetVoltage();
-    String voltage = "" + String(volts) + "v";
-    String battery = "BATT:" + String(battCalcPercentage(volts)) + "%";
     tft.fillScreen(TFT_BLACK);
     tft.setTextSize(1);
+    float volts = battGetVoltage();
+    String battery = "";
+    if (battIsCharging()) {
+        tft.setTextColor(TFT_GREEN);
+        battery = "CHAR:" + String(battCalcPercentage(volts)) + "%";
+    }
+    else {
+        int level = battCalcPercentage(volts);
+        if (level < 30) tft.setTextColor(TFT_RED);
+        battery = "BATT:" + String(level) + "%";
+    } 
     tft.drawString(battery, 0, 0);
+    tft.setTextColor(TFT_WHITE);
+    tft.setTextDatum(TC_DATUM);
+    char suptime[11];
+    sprintf(suptime,"%010d",uptime);
+    tft.drawString(suptime, tft.width()/2 + 5, 0);
+    String voltage = "" + String(volts) + "v";
     tft.setTextDatum(TR_DATUM);
     tft.drawString(voltage, tft.width(), 0);
 #endif
 }
+
+void drawBluetoothIcon () {
+    tft.drawBitmap(0, tft.height() - 18, iconBluetoothPaired, 12, 16, TFT_BLACK, TFT_BLUE);
+}
+
+void drawWifiHighIcon () {
+    tft.drawBitmap(13, tft.height() - 18, iconWifiHigh, 12, 16, TFT_BLACK, TFT_BLUE);
+}
+
+void drawFanIcon () {
+    tft.drawBitmap(26, tft.height() - 18, fanState ? iconFanState0 : iconFanState1, 12, 16, TFT_BLACK, TFT_BROWN);
+    fanState = !fanState;
+}
+
+void drawDataIcon () {
+    tft.drawBitmap(40, tft.height() - 18, iconArrows, 12, 16, TFT_BLACK, TFT_LIGHTGREY);
+}
+
+void showStatus() {
+    char output[30];
+    icFanOn = pmsensorIsEnable();
+    sprintf(output, "%s", icFanOn ? "Sensing" : "");
+#ifdef ENABLE_TFT
+    if (icDataOn) drawDataIcon();
+    if (icFanOn) drawFanIcon();
+    if (icBTPair) drawBluetoothIcon();
+    if (icWifiOn) drawWifiHighIcon();
+    tft.setTextDatum(BC_DATUM);
+    tft.setTextSize(2);
+    tft.drawLine(0, tft.height() - 19, tft.width(), tft.height() - 19, TFT_YELLOW);
+    tft.drawString(output, tft.width() / 2, tft.height());
+#endif
+}
+
+void showUptime(uint32_t u) {
+    uptime = u;
+}
+
+void showBTIcon(bool isPaired) {
+    icBTPair = isPaired;
+}
+
+void showWifiIcon(bool isWifiOn) {
+    icWifiOn = isWifiOn;
+}
+
+void showDataIcon(bool isDataOn) {
+    icDataOn = isDataOn;
+}
+
 
 void showBME680Values() {
 #ifdef ENABLE_TFT
@@ -40,12 +112,16 @@ void showPMSValues() {
 #ifdef ENABLE_TFT
     tft.setTextDatum(MC_DATUM);
     tft.setTextSize(7);
+    if (getPM25() >= 20) tft.setTextColor(TFT_YELLOW);
+    if (getPM25() >= 60) tft.setTextColor(TFT_ORANGE);
+    if (getPM25() >= 100) tft.setTextColor(TFT_RED);
     tft.drawString(getStringPM25(), tft.width() / 2 + 15, tft.height() / 2 - 28);
     tft.setTextSize(1);
     tft.drawString("PM2.5", tft.width(), tft.height() / 2 - 13);
     tft.drawString("PM1/PM10:", 0, tft.height() / 2 - 39);
     tft.drawString(getStringPM1(), 0, tft.height() / 2 - 26);
     tft.drawString(getStringPM10(), 0, tft.height() / 2 - 13);
+    tft.setTextColor(TFT_WHITE);
 #endif
 }
 
@@ -97,8 +173,9 @@ void displayInit() {
 #ifdef ENABLE_TFT
     tft.init();
     tft.setRotation(1);
+    tft.setSwapBytes(true);
     tft.fillScreen(TFT_BLACK);
-    tft.setTextColor(TFT_GREEN);
+    tft.setTextColor(TFT_WHITE);
     tft.setCursor(0, 0);
     tft.setTextDatum(MC_DATUM);
     tft.setTextSize(2);
@@ -110,9 +187,10 @@ void displayInit() {
 }
 
 void guiLoop() {
-    static uint64_t timeStamp = 0;
-    if (millis() - timeStamp > 3000) {
-        timeStamp = millis();
+    static uint_fast64_t guiTimeStamp = 0; 
+    if (millis() - guiTimeStamp > 5000) {
+        guiTimeStamp = millis();
         showMainPage();
     }
 }
+

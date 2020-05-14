@@ -26,7 +26,6 @@ String getSensorData() {
     doc["lon"] = cfg.lon;
     doc["alt"] = cfg.alt;
     doc["spd"] = cfg.spd;
-    doc["sta"] = getStatus();
     String json;
     serializeJson(doc, json);
     return json;
@@ -39,13 +38,13 @@ String getSensorData() {
 class MyServerCallbacks : public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
         deviceConnected = true;
-        statusOn(bit_paired);
+        showBTIcon(true);
         Serial.println("-->[BLE] onConnect");
     };
 
     void onDisconnect(BLEServer* pServer) {
         deviceConnected = false;
-        statusOff(bit_paired);
+        showBTIcon(false);
         Serial.println("-->[BLE] onDisconnect");
     };
 };  // BLEServerCallbacks
@@ -55,7 +54,6 @@ class MyConfigCallbacks : public BLECharacteristicCallbacks {
         std::string value = pCharacteristic->getValue();
         if (value.length() > 0) {
             if (cfg.save(value.c_str())) {
-                // triggerSaveIcon=0;
                 cfg.reload();
                 if (cfg.isNewWifi) {
                     wifiRestart();
@@ -65,9 +63,7 @@ class MyConfigCallbacks : public BLECharacteristicCallbacks {
                 if (cfg.isNewIfxdbConfig) influxDbInit();
                 if (cfg.isNewAPIConfig) apiInit();
                 if (!cfg.wifiEnable) wifiStop();
-            } else {
-                setErrorCode(ecode_invalid_config);
-            }
+            } 
             pCharactConfig->setValue(cfg.getCurrentConfig().c_str());
             pCharactData->setValue(getSensorData().c_str());
         }
@@ -106,11 +102,11 @@ void bleServerInit() {
 }
 
 void bleLoop() {
-    static uint64_t timeStamp = 0;
+    static uint_fast64_t bleTimeStamp = 0;
     // notify changed value
-    if (deviceConnected && pmsensorDataReady() && (millis() - timeStamp > 5000)) {  // each 5 secs
+    if (deviceConnected && pmsensorDataReady() && (millis() - bleTimeStamp > 5000)) {  // each 5 secs
         Serial.println("-->[BLE] sending notification..");
-        timeStamp = millis();
+        bleTimeStamp = millis();
         pCharactData->setValue(getNotificationData().c_str());  // small payload for notification
         pCharactData->notify();
         pCharactData->setValue(getSensorData().c_str());  // load big payload for possible read

@@ -15,6 +15,7 @@ int scount = 0;
 bool isInitSetup = true;
 int initSetupCount = 0;
 bool dataReady = false;
+bool isPmsensorEnable=false;
 
 void pmsensorInit() {
     Serial.println("-->[PMSensor] Setup Panasonic PM sensor..");
@@ -23,12 +24,7 @@ void pmsensorInit() {
     delay(100);
 }
 
-void pmsensorEnable(bool enable) {
-    if (enable)
-        digitalWrite(PMS_EN, HIGH);
-    else
-        digitalWrite(PMS_EN, LOW);
-}
+
 
 void copyLastVars() {
     pm1 = tpm1;
@@ -46,6 +42,24 @@ void _wrongDataState() {
 char _getLoaderChar() {
     char loader[] = {'/', '|', '\\', '-'};
     return loader[random(0, 4)];
+}
+
+void pmsensorEnable(bool enable) {
+    if (enable)
+        digitalWrite(PMS_EN, HIGH);
+    else
+        digitalWrite(PMS_EN, LOW);
+    isPmsensorEnable=enable;
+}
+
+void pmsensorStart() {
+    pmsensorEnable(true);
+}
+
+void pmsensorStop() {
+    pmsensorEnable(false);
+    copyLastVars();
+    scount = 0;
 }
 
 void pmsensorRead() {
@@ -75,20 +89,18 @@ void pmsensorRead() {
 }
 
 void pmsensorLoop(bool isBleConnected) {
-    static uint64_t pmLoopTimeStamp = 0;            // timestamp for loop check
+    static uint_fast64_t pmLoopTimeStamp = 0;            // timestamp for loop check
     if ((millis() - pmLoopTimeStamp > 1000)) {
         pmLoopTimeStamp = millis();
         static uint64_t pmTimeStamp = 0;            // timestamp for interval and sensor sample time
         int turnon_interval = SENSOR_INTERVAL;
         if (isBleConnected) turnon_interval = turnon_interval / 3; 
         if ((millis() - pmTimeStamp > turnon_interval)) {
-            pmsensorEnable(true);
+            pmsensorStart();
             if ((millis() - pmTimeStamp) > (turnon_interval + SENSOR_SAMPLE)) {
                 pmsensorRead();
-                pmsensorEnable(false);
-                copyLastVars();
                 pmTimeStamp = millis();
-                scount = 0;
+                pmsensorStop();
                 Serial.println("-->[PMSensor] Disabled.");
             } else if ((millis() - pmTimeStamp > turnon_interval + SENSOR_SAMPLE / 2)) {
                 pmsensorRead();
@@ -96,14 +108,12 @@ void pmsensorLoop(bool isBleConnected) {
                 Serial.println("-->[PMSensor] Waiting for stable measure..");
             }
         } else if (isInitSetup && (millis() - pmTimeStamp > 5000)) {
-            pmsensorEnable(true);
+            pmsensorStart();
             pmsensorRead();
             pmTimeStamp = millis();
             if (initSetupCount++ > 4) {
                 isInitSetup = false;
-                scount = 0;
-                pmsensorEnable(false);
-                copyLastVars();
+                pmsensorStop();
                 Serial.println("-->[PMSensor] Setup done.");
             }
         }
@@ -142,4 +152,8 @@ String getStringPM10() {
     char output[5];
     sprintf(output, "%03d", getPM10());
     return String(output);
+}
+
+bool pmsensorIsEnable() {
+    return isPmsensorEnable;
 }
