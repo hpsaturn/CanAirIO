@@ -14,11 +14,6 @@ void btnActionVoltagePage() {
     showVoltagePage();
 }
 
-// void buttonLoop() {
-//     btn1.loop();
-//     btn2.loop();
-// }
-
 void btnInit() {
 
     pinMode(BUTTON_2, INPUT_PULLUP);

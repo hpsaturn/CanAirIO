@@ -9,15 +9,17 @@
 #include <wifi.hpp>
 #include <bluetooth.hpp>
 #include <hal.hpp>
-
-char buff[512];
-long count = 0;
-bool lowPowerMode;
+#include "esp_log.h"
 
 void setup() {
     Serial.begin(115200);
     Serial.println("\n-->[SETUP] init:");
     cfg.init("canairio");     // init all preferences.
+
+    // esp_log_level_set("*", ESP_LOG_DEBUG);     // set all components to ERROR level
+    // esp_log_level_set("wifi", ESP_LOG_WARN);   // enable WARN logs from WiFi stack
+    // esp_log_level_set("dhcpc", ESP_LOG_INFO);  // enable INFO logs from DHCP client
+
     displayInit();            // tft connection and settings.
     showMainPage();           // gui: main page (sensor values)
     bleServerInit();          // BLE GATT server init and advertising.
