@@ -1,6 +1,7 @@
 #include "battery.hpp"
 
 int vref = 1100;
+float curv = 0;
 
 void setupBattADC() {
     esp_adc_cal_characteristics_t adc_chars;
@@ -27,8 +28,11 @@ void setupBattery() {
 }
 
 float battGetVoltage() {
+    digitalWrite(ADC_EN, HIGH);
     uint16_t v = analogRead(ADC_PIN);
-    return ((float)v / 4095.0) * 2.0 * 3.3 * (vref / 1000.0);
+    curv = ((float)v / 4095.0) * 2.0 * 3.3 * (vref / 1000.0);
+    digitalWrite(ADC_EN, LOW);   // for possible issue: https://github.com/Xinyuan-LilyGO/TTGO-T-Display/issues/6
+    return curv;
 }
 
 uint8_t _calcPercentage(float volts, float max, float min) {
@@ -55,6 +59,5 @@ void battUpdateChargeStatus() {
 }
 
 bool battIsCharging() {
-    float volts = battGetVoltage();
-    return volts > BATTERY_MAX_V;
+    return curv > BATTERY_MAX_V;
 }
