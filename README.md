@@ -8,13 +8,31 @@ Citizen science project with mobile and fixed sensors for measuring air quality 
 
 **Warnning**: it is a complete rewriting of CanAirIO device firmware. Old repo: https://github.com/kike-canaries/esp32-hpma115s0
 
+This repo is a new version of CanAirIO that supports two Air Quality sensors: Panasonic PM Sensor and Bosch VOC sensor for IAQ.
+
+## Features
+
+- [X] PM 1.0, 2.5 and PM 10 values.
+- [X] Pressure, altitude, Humidity, Temperature.
+- [X] Gas resistence (IAQ parameter)
+- [X] Tag geo localization (mobile mode)
+- [X] Save mobile trips on SD (mobile mode)
+- [X] Share mobile tracks (mobile mode)
+- [X] Set wifi parameters via Bluetooth (fixed mode)
+- [X] Set geo localization via Bluetooth (fixed mode)
+- [X] InfluxDB publication (fixed mode)
+- [X] OTA updates via local WiFi
+- [X] Enable/Disable sensor (for low power mode)
+- [X] light suspend (for low power mode)
+- [ ] light suspend (for low power mode)
+
 ---
 
-## Firmware
+# Firmware
 
 For compiling and upload the current firmware, please firts install [PlatformIO](https://platformio.org/install) or include the project in your `Arduino IDE`. Also you need the [Git](https://git-scm.com/downloads) software. Please check that the commands `pio` and `git` works fine in your OS.
 
-### Compiling and Installing
+## Compiling and Installing
 
 First, please clone this repo:
 ```python
@@ -41,7 +59,7 @@ ttgo-display      SUCCESS   00:00:33.861
 ttgo-display-ota  IGNORED
 ============= 1 succeeded in 00:00:33.861 =====================
 ```
-### OTA update
+## OTA update
 
 **Optional** you could send OTA updates of this firmware with:
 
@@ -100,7 +118,8 @@ Also, you can connect your CanAirIO device to the WiFi and leave this like a fix
 
 ## Schematic
 
-![CanAirIO Schematic](docs/schematic.jpg)
+<img  width="350" src="docs/schematic.jpg">
+
 
 ## Components
 
@@ -117,6 +136,9 @@ Also, you can connect your CanAirIO device to the WiFi and leave this like a fix
 *** Any lipo battery with max size: 25x48x8 mm aprox. Please see the 3D box model. The battery in the link has 8.8x47x19.7 mm and is the ~500mAh.
 
 ---
+
+# 3D Print box
+
 
 # Feedback
 
