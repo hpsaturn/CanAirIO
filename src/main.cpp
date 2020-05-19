@@ -45,5 +45,5 @@ void loop() {
     guiLoop();                      // gui ttf refresh methods.
 
     // save battery after phone disconnected:
-    if (!bleIsConnected()) espShallowSleep(5000);  
+    // if (!bleIsConnected()) espShallowSleep(5000);  
 }
