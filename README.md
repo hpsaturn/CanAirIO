@@ -23,8 +23,6 @@ This repo is a new version of CanAirIO that supports two Air Quality sensors: Pa
 - [X] InfluxDB publication (fixed mode)
 - [X] OTA updates via local WiFi
 - [X] Enable/Disable sensor (for low power mode)
-- [X] light suspend (for low power mode)
-- [ ] light suspend (for low power mode)
 
 ---
 
@@ -99,7 +97,7 @@ Also, you can connect your CanAirIO device to the WiFi and leave this like a fix
 
 ### Settings
 
-<img align="right" width="640" src="screenshots/canairio_app_settings.png">
+<img align="right" width="400" src="screenshots/canairio_app_settings.png">
 
 
 - **Station Name**: for example: `PM25_Berlin_Pankow`
@@ -134,14 +132,13 @@ The data will be configured and showed in [CanAirIO Grafana Server](https://bit.
 |----------------------------|-------------------------------|
 | TTGO T-Display        |[AliExpress option](https://bit.ly/2z21vti) |
 | Panasonic SN-GCJA5    |[Mouser international option](https://bit.ly/3bMmRYC) |
-| Bosch BME680 **       |[AliExpress option](https://bit.ly/2LIB0eR) |
-| DC-DC Booster ***     |[AliExpress option](https://bit.ly/2LMm7Ip) |
-| Lipo Battery 3.7 **** |[Amazon option](https://amzn.to/2FtzE5c)|
+| Bosch BME680         |[AliExpress option](https://bit.ly/2LIB0eR) |
+| DC-DC Booster **     |[AliExpress option](https://bit.ly/2LMm7Ip) |
+| Lipo Battery 3.7 *** |[Amazon option](https://amzn.to/2FtzE5c)|
 |      |      |
 
-- ** Optional device (for pressure, temperature, etc).  
-- *** NOTE: untested it, meanwhile I have a 2n2222 for enable/disable a normal boost without `enable` pin, but I think that it will be work.  
-- **** Any lipo battery with max size: 25x48x8 mm aprox. Please see the 3D box model. The battery in the link has 8.8x47x19.7 mm and is the ~500mAh.
+** NOTE: untested it, meanwhile I have a 2n2222 for enable/disable a normal boost without `enable` pin, but I think that it will be work.  
+*** Any lipo battery with max size: 25x48x8 mm aprox. Please see the 3D box model. The battery in the link has 8.8x47x19.7 mm and is the ~500mAh.
 
 ---
 
