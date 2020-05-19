@@ -95,11 +95,11 @@ For record tracks on your device (Sdcard) or publish it to the cloud (share), pl
 
 <img width="640" src="screenshots/influxdb_grafana.jpg">
 
-Also, you can connect your CanAirIO device to the WiFi and leave this like a fixed station. In this mode you only need the Android app only for initial settings, after that the device could be publish data without phone. For this you need configure it in `settings` section:
+Also, you can connect your CanAirIO device to the WiFi and leave this like a fixed station. In this mode you only need the Android app only for initial settings, after that the device could be publish data without the phone. For this you need configure it in `settings` section:
 
 ### Settings
 
-<img align="right" width="500" src="screenshots/canairio_app_settings.png">
+<img align="right" width="640" src="screenshots/canairio_app_settings.png">
 
 
 - **Station Name**: for example: `PM25_Berlin_Pankow`
