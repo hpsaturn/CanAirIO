@@ -119,8 +119,6 @@ The data will be configured and showed in [CanAirIO Grafana Server](https://bit.
 - Reboot device: Only for restart your CanAirIO device
 - Factory Reset: For set all settings to default on your CanAirIO device
 
-### 
-
 
 # Electronic components
 
@@ -146,6 +144,11 @@ The data will be configured and showed in [CanAirIO Grafana Server](https://bit.
 ---
 
 # 3D Print box
+
+You can download the 3D models in [Thingiverse](https://www.thingiverse.com/thing:4378483).
+
+<img  width="512" src="screenshots/3dbox_models.jpg">
+
 
 
 
