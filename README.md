@@ -1,18 +1,19 @@
 [![Build Status](https://travis-ci.com/hpsaturn/CanAirIO.svg?branch=master)](https://travis-ci.com/hpsaturn/CanAirIO) [![Liberapay Status](http://img.shields.io/liberapay/receives/CanAirIO.svg?logo=liberapay)](https://liberapay.com/CanAirIO)
 
-
 # CanAirIO
 
 Citizen science project with mobile and fixed sensors for measuring air quality (PM 2.5) using low-cost sensors and smartphones. Built with a `ESP32` module board and `Panasonic particle meter` dust sensor, interfaced with an [CanAirIO Android app](https://github.com/kike-canaries/android-hpma115s0).
 
 <a href="https://play.google.com/store/apps/details?id=hpsaturn.pollutionreporter" target="_blank"><img  width="120" src="screenshots/gplayicon.png"></a>
 
+This repo is a new version of CanAirIO that supports two Air Quality sensors: Panasonic PM Sensor and Bosch VOC sensor for IAQ.
+
+<img align="right" width="290" src="screenshots/collage00.jpg">
 
 **Warnning**: it is a complete rewriting of CanAirIO device firmware. Old repo: https://github.com/kike-canaries/esp32-hpma115s0
 
-This repo is a new version of CanAirIO that supports two Air Quality sensors: Panasonic PM Sensor and Bosch VOC sensor for IAQ.
-
 ## Features
+
 
 - [X] PM 1.0, 2.5 and PM 10 values.
 - [X] Pressure, altitude, Humidity, Temperature.
