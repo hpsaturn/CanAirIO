@@ -39,7 +39,7 @@ First, please clone this repo:
 git clone https://github.com/hpsaturn/CanAirIO.git
 ```
 
-Connect your device to USB cable , enter to `CanAirIO directory and run:
+Connect your device to USB cable , enter to `CanAirIO` directory and run:
 
 ```python
 pio run --target upload
@@ -93,15 +93,13 @@ For record tracks on your device (Sdcard) or publish it to the cloud (share), pl
 
 ## Static Station Mode
 
-![CanAirIO Schematic](screenshots/influxdb_grafana.jpg)
+<img width="640" src="screenshots/influxdb_grafana.jpg">
 
-
-
-Also, you can connect your CanAirIO device to the WiFi and leave this like a fixed station. For this you need configure it in `settings` section:
+Also, you can connect your CanAirIO device to the WiFi and leave this like a fixed station. In this mode you only need the Android app only for initial settings, after that the device could be publish data without phone. For this you need configure it in `settings` section:
 
 ### Settings
 
-<img align="right" width="300" src="screenshots/canairio_app_settings.png">
+<img align="right" width="500" src="screenshots/canairio_app_settings.png">
 
 
 - **Station Name**: for example: `PM25_Berlin_Pankow`
@@ -113,7 +111,7 @@ Also, you can connect your CanAirIO device to the WiFi and leave this like a fix
   - Hostname: `influxdb.canair.io`
   - Save the settings with the switch.
 
-The data will be configured and showed in [CanAirIO Grafana Server](https://bit.ly/3bLpz0H)
+The data will be configured and showed in [CanAirIO Grafana Server](https://bit.ly/3bLpz0H).
 
 ### Settings Tools
 
@@ -141,9 +139,9 @@ The data will be configured and showed in [CanAirIO Grafana Server](https://bit.
 | Lipo Battery 3.7 **** |[Amazon option](https://amzn.to/2FtzE5c)|
 |      |      |
 
-** Optional device (for pressure, temperature, etc).  
-*** NOTE: Untested, meanwhile I have a 2n2222 for enable/disable a normal boost without `enable` pin, but I think that it will be work.  
-**** Any lipo battery with max size: 25x48x8 mm aprox. Please see the 3D box model. The battery in the link has 8.8x47x19.7 mm and is the ~500mAh.
+- ** Optional device (for pressure, temperature, etc).  
+- *** NOTE: untested it, meanwhile I have a 2n2222 for enable/disable a normal boost without `enable` pin, but I think that it will be work.  
+- **** Any lipo battery with max size: 25x48x8 mm aprox. Please see the 3D box model. The battery in the link has 8.8x47x19.7 mm and is the ~500mAh.
 
 ---
 
