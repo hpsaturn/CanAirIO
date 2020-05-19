@@ -73,7 +73,7 @@ It will be try to send the firmware to CanAirIO.local host on your network, it t
 
 For now you need any Android device with Bluetooth 4 or above. You can download the CanAirIO app from [GooglePlay](https://play.google.com/store/apps/details?id=hpsaturn.pollutionreporter), keep in mind that it is in continuos development then please any feedback, report errors, or any thing please let us knowed it via our [contact form](http://canair.io/#three) or on our [Telegram chat](https://t.me/canairio)
 
-You have **two configuration options** of your CanAirIO device from the app:
+You have **two configuration options or modes** of your CanAirIO device from the app:
 
 ## Mobile Station Mode
 
@@ -81,11 +81,11 @@ For record tracks on your device (Sdcard) or publish it to the cloud (share), pl
 
 ### Connection to device
 
-<a href="https://github.com/kike-canaries/esp32-hpma115s0/blob/master/images/device_connection.jpg" target="_blank"><img src="https://raw.githubusercontent.com/kike-canaries/esp32-hpma115s0/master/images/device_connection.jpg" width="640" ></a>
+<a href="https://github.com/kike-canaries/esp32-hpma115s0/blob/master/images/device_connection.jpg" target="_blank"><img src="https://raw.githubusercontent.com/kike-canaries/esp32-hpma115s0/master/images/device_connection.jpg" width="512" align="center" ></a>
 
 ### Recording track and share
 
-<a href="https://github.com/kike-canaries/esp32-hpma115s0/blob/master/images/app_track_record.jpg" target="_blank"><img src="https://raw.githubusercontent.com/kike-canaries/esp32-hpma115s0/master/images/app_track_record.jpg" width="640" ></a>
+<a href="https://github.com/kike-canaries/esp32-hpma115s0/blob/master/images/app_track_record.jpg" target="_blank"><img src="https://raw.githubusercontent.com/kike-canaries/esp32-hpma115s0/master/images/app_track_record.jpg" width="512" align="center" ></a>
 
 **NOTE**: Also all recorded tracks will be saved in the `/sdcard/canairio/` directory on `json` format.
 
@@ -101,24 +101,33 @@ Also, you can connect your CanAirIO device to the WiFi and leave this like a fix
 
 ### Settings
 
-<img align="right" width="300" src="screenshots/canairio_app_settings.jpg">
+<img align="right" width="300" src="screenshots/canairio_app_settings.png">
 
 
 - **Station Name**: for example: `PM25_Berlin_Pankow`
-- **Wifi Name and Password**: Your Wifi network credentials.
-- **InfluxDB Cloud**: Database name: `canairio` hostname: `influxdb.canair.io` like is showing in the screenshots
+- **Wifi Name and Password**:
+  - Your Wifi network credentials.
+  - Save the credentials with the switch.
+- **InfluxDB Cloud**: add the next values,
+  - Database name: `canairio`  
+  - Hostname: `influxdb.canair.io`
+  - Save the settings with the switch.
 
-### Tools
+The data will be configured and showed in [CanAirIO Grafana Server](https://bit.ly/3bLpz0H)
+
+### Settings Tools
 
 - Reboot device: Only for restart your CanAirIO device
 - Factory Reset: For set all settings to default on your CanAirIO device
+
+### 
 
 
 # Electronic components
 
 ## Schematic
 
-<img  width="350" src="docs/schematic.jpg">
+<img  width="400" src="docs/schematic.jpg">
 
 
 ## Components
@@ -127,18 +136,22 @@ Also, you can connect your CanAirIO device to the WiFi and leave this like a fix
 |----------------------------|-------------------------------|
 | TTGO T-Display        |[AliExpress option](https://bit.ly/2z21vti) |
 | Panasonic SN-GCJA5    |[Mouser international option](https://bit.ly/3bMmRYC) |
-| Bosch BME680          |[AliExpress option](https://bit.ly/2LIB0eR) |
-| DC-DC Booster **      |[AliExpress option](https://bit.ly/2LMm7Ip) |
-| Lipo Battery 3.7 ***  |[Amazon option](https://amzn.to/2FtzE5c)|
+| Bosch BME680 **       |[AliExpress option](https://bit.ly/2LIB0eR) |
+| DC-DC Booster ***     |[AliExpress option](https://bit.ly/2LMm7Ip) |
+| Lipo Battery 3.7 **** |[Amazon option](https://amzn.to/2FtzE5c)|
 |      |      |
 
-** NOTE: Untested, meanwhile I have a 2n2222 for enable/disable the boost, but I think that it will be work.  
-*** Any lipo battery with max size: 25x48x8 mm aprox. Please see the 3D box model. The battery in the link has 8.8x47x19.7 mm and is the ~500mAh.
+** Optional device (for pressure, temperature, etc).  
+*** NOTE: Untested, meanwhile I have a 2n2222 for enable/disable a normal boost without `enable` pin, but I think that it will be work.  
+**** Any lipo battery with max size: 25x48x8 mm aprox. Please see the 3D box model. The battery in the link has 8.8x47x19.7 mm and is the ~500mAh.
 
 ---
 
 # 3D Print box
 
+
+
+---
 
 # Feedback
 
