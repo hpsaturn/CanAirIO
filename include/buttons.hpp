@@ -1,8 +1,9 @@
 #include <Button2.h>
-#include <gui.hpp>
-#include <sleep.hpp>
 #include <hal.hpp>
 
+typedef void (*voidFuncPtr)();
+
 void btnInit();
-void btnActionDeepSleep();
-void btnActionVoltagePage();
+void btn1Callback(voidFuncPtr cb);
+void btn2Callback(voidFuncPtr cb);
+
