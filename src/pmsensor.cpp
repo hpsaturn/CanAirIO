@@ -24,8 +24,6 @@ void pmsensorInit() {
     delay(100);
 }
 
-
-
 void copyLastVars() {
     pm1 = tpm1;
     pm10 = tpm10;

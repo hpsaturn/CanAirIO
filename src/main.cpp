@@ -11,6 +11,22 @@
 #include <hal.hpp>
 #include "esp_log.h"
 
+bool isClickedBtnOff;
+bool isClickedBtnPage;
+
+void turnOff () {
+    displayOff();
+    espDeepSleep();
+}
+
+void onBtn1Click() {
+    isClickedBtnOff = true;
+}
+
+void onBtn2Click() {
+    isClickedBtnPage = true;
+}
+
 void setup() {
     Serial.begin(115200);
     Serial.println("\n-->[SETUP] init:");
@@ -26,6 +42,8 @@ void setup() {
     pmsensorInit();           // Panasonic PM sensor initialization.
     bmeInit();                // BME680 multi sensor initialization.
     btnInit();                // Buttons interrupts.
+    btn1Callback(onBtn1Click);
+    btn2Callback(onBtn2Click);
     setupBattery();           // init battery ADC.
     setupBattADC();           // confit battery ADC.
     wifiInit();               // re-connection to last wifi network.
@@ -46,4 +64,5 @@ void loop() {
 
     // save battery after phone disconnected:
     // if (!bleIsConnected()) espShallowSleep(5000);  
+    if (isClickedBtnOff) turnOff();
 }
