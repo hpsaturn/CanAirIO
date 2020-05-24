@@ -145,7 +145,17 @@ The data will be configured and showed in [CanAirIO Grafana Server](https://bit.
 
 # 3D Print box
 
-You can download the 3D models in [Thingiverse](https://www.thingiverse.com/thing:4378483).
+You can download the 3D models in [Thingiverse](https://www.thingiverse.com/thing:4378483) or download from `box` git directory.  
+
+3d print files:
+
+```java
+ ArtilleryGenius_Cura_project.3mf  # Project for Ultimaker Cura slicer software (optional).
+ CanAirIO_3dBox_body.stl           # Main body for sensors and TTGO T-Display board.
+ CanAirIO_3dBox_cap.stl            # Body cap with holes for air input/output.
+ CanAirIO_Logo_canary.stl          # Optional CanAirIO logo.
+ CanAirIO_Logo_cloud.stl           # Optional CanAirIO logo cloud.
+```
 
 <img  width="512" src="screenshots/3dbox_models.jpg">
 
