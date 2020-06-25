@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/hpsaturn/CanAirIO.svg?branch=master)](https://travis-ci.com/hpsaturn/CanAirIO) [![Liberapay Status](http://img.shields.io/liberapay/receives/CanAirIO.svg?logo=liberapay)](https://liberapay.com/CanAirIO)
+[![PlatformIO](https://github.com/hpsaturn/CanAirIO/workflows/PlatformIO/badge.svg)](https://github.com/hpsaturn/CanAirIO/actions/)[![Build Status](https://travis-ci.com/hpsaturn/CanAirIO.svg?branch=master)](https://travis-ci.com/hpsaturn/CanAirIO) [![Liberapay Status](http://img.shields.io/liberapay/receives/CanAirIO.svg?logo=liberapay)](https://liberapay.com/CanAirIO)
 
 # CanAirIO
 
