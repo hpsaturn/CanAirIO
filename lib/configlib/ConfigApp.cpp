@@ -236,7 +236,7 @@ void ConfigApp::reboot(){
   ESP.restart();
 }
 
-#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_OTAHANDLER)
+#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_CFGHANDLER)
 ConfigApp cfg;
 #endif
 

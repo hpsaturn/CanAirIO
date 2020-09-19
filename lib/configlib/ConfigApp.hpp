@@ -57,7 +57,7 @@ class ConfigApp
 
 };
 
-#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_OTAHANDLER)
+#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_CFGHANDLER)
 extern ConfigApp cfg;
 #endif
 
