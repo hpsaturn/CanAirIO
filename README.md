@@ -13,7 +13,7 @@ This repo is a TTGO version of CanAirIO that supports two Air Quality sensors:
 
 <img align="right" width="290" src="screenshots/collage00.jpg">
 
-**Warnning**: it is a alternative to CanAirIO device firmware[https://github.com/kike-canaries/canairio_firmware#canairio-firmware]
+**Warnning**: it is a alternative to [CanAirIO firmware](https://github.com/kike-canaries/canairio_firmware#canairio-firmware)
 
 ## Features
 
