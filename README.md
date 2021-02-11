@@ -6,14 +6,15 @@ Citizen science project with mobile and fixed sensors for measuring air quality 
 
 <a href="https://play.google.com/store/apps/details?id=hpsaturn.pollutionreporter" target="_blank"><img  width="120" src="screenshots/gplayicon.png"></a>
 
-This repo is a TTGO version of CanAirIO that supports two Air Quality sensors: 
+This repo is a TTGO T-Display version of CanAirIO that supports two Air Quality sensors: 
 
 - [x] Panasonic PM Sensor 
 - [x] Bosch BME680 VOC sensor for IAQ.
 
 <img align="right" width="290" src="screenshots/collage00.jpg">
 
-**Warnning**: it is a alternative to [CanAirIO firmware](https://github.com/kike-canaries/canairio_firmware#canairio-firmware)
+**Warnning**: it is a alternative to [CanAirIO firmware](https://github.com/kike-canaries/canairio_firmware#canairio-firmware)  
+**Warnning**: this code should be change and migrated to the current firmware
 
 ## Features
 
