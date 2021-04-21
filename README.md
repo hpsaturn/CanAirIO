@@ -1,5 +1,15 @@
 [![PlatformIO](https://github.com/hpsaturn/CanAirIO/workflows/PlatformIO/badge.svg)](https://github.com/hpsaturn/CanAirIO/actions/) [![Build Status](https://travis-ci.com/hpsaturn/CanAirIO.svg?branch=master)](https://travis-ci.com/hpsaturn/CanAirIO) [![Liberapay Status](http://img.shields.io/liberapay/receives/CanAirIO.svg?logo=liberapay)](https://liberapay.com/CanAirIO)
 
+---
+---
+
+**W A R N I N G**: This is a proof of concept of CanAirIO device firmware over a TTGO T-Display board, but the more stable version of CanAirIO device is [here](https://github.com/kike-canaries/canairio_firmware). I'm close to give complete support to this board with all new features of current CanAirIO firmware.
+
+---
+---
+
+  
+
 # CanAirIO
 
 Citizen science project with mobile and fixed sensors for measuring air quality (PM 2.5) using low-cost sensors and smartphones. Built with a `ESP32` module board and `Panasonic particle meter` dust sensor, interfaced with an [CanAirIO Android app](https://github.com/kike-canaries/android-hpma115s0).
@@ -10,7 +20,6 @@ This repo is a new version of CanAirIO that supports two Air Quality sensors: Pa
 
 <img align="right" width="290" src="screenshots/collage00.jpg">
 
-**Warnning**: it is a complete rewriting of CanAirIO device firmware. Old repo: https://github.com/kike-canaries/esp32-hpma115s0
 
 ## Features
 
