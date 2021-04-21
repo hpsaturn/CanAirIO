@@ -1,4 +1,4 @@
-[![PlatformIO](https://github.com/hpsaturn/CanAirIO/workflows/PlatformIO/badge.svg)](https://github.com/hpsaturn/CanAirIO/actions/) [![Build Status](https://travis-ci.com/hpsaturn/CanAirIO.svg?branch=master)](https://travis-ci.com/hpsaturn/CanAirIO) [![Liberapay Status](http://img.shields.io/liberapay/receives/CanAirIO.svg?logo=liberapay)](https://liberapay.com/CanAirIO)
+[![PlatformIO](https://github.com/hpsaturn/CanAirIO/workflows/PlatformIO/badge.svg)](https://github.com/hpsaturn/CanAirIO/actions/) [![Build Status](https://travis-ci.com/hpsaturn/CanAirIO.svg?branch=master)](https://travis-ci.com/hpsaturn/CanAirIO) ![ViewCount](https://views.whatilearened.today/views/github/kike-canaries/canairio_firmware.svg) [![Liberapay Status](http://img.shields.io/liberapay/receives/CanAirIO.svg?logo=liberapay)](https://liberapay.com/CanAirIO)
 
 ---
 ---
@@ -12,11 +12,14 @@
 
 # CanAirIO
 
-Citizen science project with mobile and fixed sensors for measuring air quality (PM 2.5) using low-cost sensors and smartphones. Built with a `ESP32` module board and `Panasonic particle meter` dust sensor, interfaced with an [CanAirIO Android app](https://github.com/kike-canaries/android-hpma115s0).
+Citizen science project with mobile and fixed sensors for measuring air quality (PM 2.5) using low-cost sensors and smartphones. Built with a `ESP32` module board and some dust sensor, like Sensirion, Panasonic, Honeywell and Samsung interfaced with an [CanAirIO Android app](https://github.com/kike-canaries/canairio_android#canairio-air-quality-reporter).
 
 <a href="https://play.google.com/store/apps/details?id=hpsaturn.pollutionreporter" target="_blank"><img  width="120" src="screenshots/gplayicon.png"></a>
 
-This repo is a new version of CanAirIO that supports two Air Quality sensors: Panasonic PM Sensor and Bosch VOC sensor for IAQ.
+This repo is a TTGO T-Display version of CanAirIO that supports two Air Quality sensors: 
+
+- [x] Panasonic PM Sensor 
+- [x] Bosch BME680 VOC sensor for IAQ.
 
 <img align="right" width="290" src="screenshots/collage00.jpg">
 
