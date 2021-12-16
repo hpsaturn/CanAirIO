@@ -3,7 +3,7 @@
 ---
 ---
 
-**W A R N I N G**: This is a previous proof of concept of CanAirIO device firmware over a TTGO T-Display board, but now it is only a old reference. The last stable version of [CanAirIO device](https://github.com/kike-canaries/canairio_firmware) already have support for this board and many featores more. Please use the official [CanAirIO Firmware](https://github.com/kike-canaries/canairio_firmware/releases) instead this firmware.
+**W A R N I N G**: This is a previous proof of concept of CanAirIO device firmware over a TTGO T-Display board, but now it is only a old reference. The last stable version of [CanAirIO device](https://github.com/kike-canaries/canairio_firmware) already have support for this board and many features more. Please use the official [CanAirIO Firmware](https://github.com/kike-canaries/canairio_firmware/releases) instead of this firmware.
 
 ---
 ---
